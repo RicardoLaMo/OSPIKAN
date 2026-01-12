@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.ruff_cache/
+
+# Data
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Jupyter
+**/.ipynb_checkpoints/
+
+# Environments
+.env
+.venv/
+env/
+
+# Local Git recovery backups
+.git.bak-*/
+
+# Binary docs (keep out of VCS by default)
+*.pdf
+*.docx
+*.xlsx

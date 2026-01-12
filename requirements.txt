@@ -1,0 +1,5 @@
+openbb
+pandas
+numpy
+torch
+jupyter
