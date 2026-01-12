@@ -35,6 +35,16 @@ Each agent owns code + tests in a scoped area:
 - Market data + run artifacts: **not tracked** (see `.gitignore` for `data/raw/`, `data/interim/`, `data/processed/`).
 - If you want to version large binaries (PDFs/figures): consider `git-lfs` and keep them under `reports/` or `references/`.
 
+## Note on Git location (Google Drive mount)
+
+This working tree lives under a Google Drive mount. On this filesystem, Git reflog writes can fail.
+
+Current setup:
+- The repo’s `.git` in the working tree is a pointer file.
+- The actual Git directory is stored at `/home/wliu23/.gitdirs/investment.git` (local filesystem).
+
+If you clone/move this project to another machine, clone from a remote instead of relying on the Drive folder to carry Git history.
+
 ## Pipeline entrypoints (current)
 
 ### 1) Ingest the configured universe
@@ -53,4 +63,3 @@ Builds an aligned close-price matrix and writes to `data/interim/`.
 - Keep changes reviewable:
   - Prefer ≤ ~300 LOC per PR unless unavoidable.
   - Add/adjust tests for contract changes (schemas, features, regime outputs).
-

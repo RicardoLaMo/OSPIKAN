@@ -330,6 +330,12 @@ def main() -> None:
     p_align.add_argument("--run-id", default=None, help="If provided, resolves run dir under metadata_dir.")
     p_align.add_argument("--out", default=None, help="Output CSV path under data/interim/")
 
+    p_qa = sub.add_parser("qa", help="Validate an aligned panel (missingness + basic sanity checks).")
+    p_qa.add_argument("--panel", required=True, help="CSV path produced by `align` (date index in first column).")
+    p_qa.add_argument("--out", default=None, help="Output JSON path (defaults next to panel).")
+    p_qa.add_argument("--required", default=None, help="Comma-separated required column names.")
+    p_qa.add_argument("--max-missing-rate", type=float, default=None, help="Fail if overall missing rate exceeds this.")
+
     args = parser.parse_args()
 
     if args.cmd == "ingest":
@@ -365,7 +371,20 @@ def main() -> None:
         print(out_path)
         return
 
+    if args.cmd == "qa":
+        from src.validation.data_quality import validate_panel, write_json
+
+        panel = pd.read_csv(args.panel, index_col=0, parse_dates=True)
+        required = [c.strip() for c in (args.required or "").split(",") if c.strip()] or None
+
+        report = validate_panel(panel, required_columns=required, max_missing_rate=args.max_missing_rate)
+
+        out_path = args.out or (args.panel + ".qa.json")
+        _ensure_dir(os.path.dirname(out_path) or ".")
+        write_json(out_path, report)
+        print(out_path)
+        return
+
 
 if __name__ == "__main__":
     main()
-
