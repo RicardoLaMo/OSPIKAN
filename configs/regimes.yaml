@@ -1,0 +1,27 @@
+version: 1
+
+# This file defines *configuration* only. Regime definitions and label mappings
+# should remain stable once you start generating results for the thesis.
+
+trend:
+  fast_ma_days: 20
+  slow_ma_days: 60
+  slope_window_days: 20
+
+volatility:
+  realized_vol_window_days: 20
+  # Annualized vol bucket thresholds (placeholders; calibrate on data).
+  buckets:
+    low: 0.15
+    high: 0.30
+
+hmm:
+  n_states: 3
+  train_window_days: 2520
+  step_days: 20
+  feature_set:
+    - log_return_1d
+    - realized_vol_20d
+    - gsr_log
+    - dxy_beta_60d
+

@@ -22,3 +22,8 @@ This project leverages Geometric Algebra (GA) to analyze multi-asset portfolios.
 2. Run data fetcher: `python src/pipeline/fetch_data.py`
 3. Process features: `python src/pipeline/preprocess.py`
 4. Run tests: `python tests/test_tensor_ga.py`
+
+## Silver Trend/Regime Project
+- Plan: `silver_trend_regime_plan.md`
+- Workflow + Git conventions: `docs/WORKFLOW.md`
+- Pipeline (universe ingest + alignment): `python src/pipeline/silver_pipeline.py --help`

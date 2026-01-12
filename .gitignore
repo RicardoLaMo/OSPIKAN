@@ -8,8 +8,10 @@ __pycache__/
 # Data
 data/raw/*
 data/processed/*
+data/interim/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+!data/interim/.gitkeep
 
 # Jupyter
 **/.ipynb_checkpoints/
@@ -21,6 +23,7 @@ env/
 
 # Local Git recovery backups
 .git.bak-*/
+.git.partial-*/
 
 # Binary docs (keep out of VCS by default)
 *.pdf

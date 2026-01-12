@@ -1,0 +1,38 @@
+version: 1
+
+defaults:
+  provider: yfinance
+  start_date: "2010-01-01"
+  end_date: null
+  interval: 1d
+
+# Minimum viable universe for silver trend + regime work.
+# Adjust symbols per provider/data vendor.
+universe:
+  silver:
+    - SI=F
+    - XAGUSD=X
+    - SLV
+    - SIVR
+    - SIL
+    - SILJ
+
+  cross_metals:
+    - GC=F
+    - XAUUSD=X
+    - HG=F
+
+  macro:
+    - DX-Y.NYB
+    - ^TNX
+    - ^IRX
+    - ^VIX
+    - SPY
+    - QQQ
+
+outputs:
+  raw_dir: data/raw
+  interim_dir: data/interim
+  processed_dir: data/processed
+  metadata_dir: data/raw/_runs
+
