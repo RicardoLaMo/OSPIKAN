@@ -23,6 +23,13 @@ env/
 
 # Local temp (Drive mounts may not support tempfile probes)
 .tmp/
+output/
+
+# Generated reports/artifacts
+reports/**
+!reports/
+!reports/**/
+!reports/**/.gitkeep
 
 # Local Git recovery backups
 .git.bak-*/
@@ -32,3 +39,9 @@ env/
 *.pdf
 *.docx
 *.xlsx
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
