@@ -13,3 +13,4 @@ statsmodels
 scipy
 seaborn
 einops
+requests

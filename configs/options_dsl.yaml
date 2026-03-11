@@ -1,0 +1,115 @@
+# Options DSL Configuration
+# Ollama + KAN Knowledge Store + Training Settings
+
+ollama:
+  # Ollama server endpoint
+  base_url: "http://localhost:11434"
+  # Model: qwen2.5-coder:7b for code-tuned DSL output
+  model: "qwen2.5-coder:7b"
+  # Generation parameters
+  temperature: 0.5  # Lower for more deterministic DSL output
+  top_p: 0.95
+  max_tokens: 200   # DSL commands are short
+  timeout: 60       # seconds
+  # Retry logic for NL->DSL translation
+  max_retries: 3
+  health_check_timeout: 5
+
+kan_store:
+  # KAN Network architectures
+  vol_surface:
+    layer_sizes: [10, 32, 32, 16, 1]
+    grid_size: 8
+    spline_order: 3
+
+  covariance:
+    layer_sizes: [8, 32, 32, 21]  # 6x6 symmetric = 21 unique
+    grid_size: 8
+    spline_order: 3
+
+  transition:
+    layer_sizes: [9, 32, 32, 4]   # 4 regimes
+    grid_size: 8
+    spline_order: 3
+
+  # Device: 'cpu' or 'cuda'
+  device: "cpu"
+
+training:
+  # Training loop
+  batch_size: 32
+  learning_rate: 0.001
+  epochs: 100
+  optimizer: "adam"
+
+  # Data generation (synthetic-only mode)
+  synthetic_only: true
+
+  # Data generation parameters
+  num_vol_surface_samples: 50000
+  num_covariance_samples: 10000
+  num_transition_samples: 20000
+
+  # Vol surface parameters by regime
+  vol_surface:
+    STABLE:
+      base_vol: 0.18
+      smile_steepness: 0.05
+    TRANSITION:
+      base_vol: 0.28
+      smile_steepness: 0.10
+    STRESS:
+      base_vol: 0.45
+      smile_steepness: 0.20
+    RECOVERY:
+      base_vol: 0.22
+      smile_steepness: 0.08
+
+  # Loss functions
+  loss_weight_vol_surface: 1.0
+  loss_weight_covariance: 1.0
+  loss_weight_transition: 1.0
+
+  # Checkpointing
+  save_interval: 10  # Save every N epochs
+  checkpoint_dir: "reports/options/kan_store"
+
+repl:
+  # Interactive REPL settings
+  prompt: "options> "
+  verbose: false
+  # Default mode: 'dsl' or 'llm'
+  default_mode: "dsl"
+  # Enable pretty-print results
+  pretty_print: true
+
+regime_names:
+  - "STABLE"
+  - "TRANSITION"
+  - "STRESS"
+  - "RECOVERY"
+
+asset_names:
+  - "silver"
+  - "gold"
+  - "dxy"
+
+# Feature normalization ranges (for KAN input scaling)
+feature_ranges:
+  ricci_mean_core_60d: [-2.0, 2.0]
+  ricci_min_core_60d: [-2.0, 2.0]
+  mst_stress_core_60d: [0.0, 1.0]
+  ga_rotor_magnitude_60d: [0.0, 2.0]
+  realized_vol_20d: [0.05, 1.0]
+  momentum_10d: [-0.1, 0.1]
+  p_regime_0: [0.0, 1.0]
+  p_regime_1: [0.0, 1.0]
+
+# Pricing defaults
+pricing:
+  # Default risk-free rate if not specified
+  default_rate: 0.05
+  # Default dividend yield if not specified
+  default_dividend: 0.0
+  # Default regime if not specified
+  default_regime: "STABLE"
