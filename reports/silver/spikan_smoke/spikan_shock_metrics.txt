@@ -1,0 +1,16 @@
+SPIKAN Training Results
+==================================================
+
+Training Config:
+  Train end: 2019-12-31
+  Val: 2020-01-01 to 2021-12-31
+  Test start: 2022-01-01
+  Epochs: 1
+  Batch size: 128
+
+Test Metrics:
+  MSE: 0.281886
+  MAE: 0.519347
+  AUC-ROC: 0.534
+  Precision@K: 0.345
+  PDE Residual: 48.465994

@@ -57,6 +57,9 @@ Builds an aligned close-price matrix and writes to `data/interim/`.
 
 `python src/pipeline/silver_pipeline.py align --config configs/silver_universe.yaml`
 
+### 3) Full end-to-end process
+Runbook: `docs/END_TO_END.md` (pipeline → features → regimes → reports).
+
 ## Quality gates
 
 - Run tests before merging: `pytest -q`

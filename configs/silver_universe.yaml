@@ -10,17 +10,18 @@ defaults:
 # Adjust symbols per provider/data vendor.
 universe:
   silver:
-    - SI=F
-    - XAGUSD=X
-    - SLV
-    - SIVR
-    - SIL
-    - SILJ
+    - SI=F       # Silver futures (primary)
+    # - XAGUSD=X  # REMOVED: yfinance fails for this symbol
+    - SLV        # iShares Silver Trust ETF
+    - SIVR       # Aberdeen Standard Silver ETF
+    - SIL        # Global X Silver Miners ETF
+    - SILJ       # ETFMG Prime Junior Silver ETF
 
   cross_metals:
-    - GC=F
-    - XAUUSD=X
-    - HG=F
+    - GC=F       # Gold futures (primary)
+    # - XAUUSD=X  # REMOVED: yfinance fails for this symbol
+    - GLD        # SPDR Gold Trust ETF (alternative to XAUUSD=X)
+    - HG=F       # Copper futures
 
   macro:
     - DX-Y.NYB
@@ -36,3 +37,45 @@ outputs:
   processed_dir: data/processed
   metadata_dir: data/raw/_runs
 
+# Optional: asset manifolds for sectional curvature + stress differentials.
+# Used by: `python src/pipeline/silver_pipeline.py features --sectional-curvature --config configs/silver_universe.yaml`
+manifolds:
+  monetary:
+    symbols:
+      - DX-Y.NYB
+      - UUP
+      - ^IRX
+      - ^FVX
+      - ^TNX
+      - ^TYX
+      - SHY
+      - IEF
+      - TLT
+      - TIP
+      - RINF
+  industrial:
+    symbols:
+      - HG=F
+      - CL=F
+      - BZ=F
+      - NG=F
+      - USO
+      - XLE
+      - OIH
+      - DBC
+      - GSG
+  miners:
+    symbols:
+      - SIL
+      - SILJ
+  credit:
+    symbols:
+      - LQD
+      - HYG
+      - JNK
+      - EMB
+      - MUB
+  volatility:
+    symbols:
+      - ^VIX
+      - ^VXN

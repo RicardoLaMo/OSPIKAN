@@ -1,0 +1,65 @@
+                        Markov Switching Model Results                        
+==============================================================================
+Dep. Variable:                     _y   No. Observations:                 3896
+Model:               MarkovRegression   Log Likelihood                     nan
+Date:                Sun, 11 Jan 2026   AIC                                nan
+Time:                        23:37:45   BIC                                nan
+Sample:                             0   HQIC                               nan
+                               - 3896                                         
+Covariance Type:               approx                                         
+                             Regime 0 parameters                              
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const        -19.9838        nan        nan        nan         nan         nan
+x1            -0.7544        nan        nan        nan         nan         nan
+x2             0.3218        nan        nan        nan         nan         nan
+x3             0.3014        nan        nan        nan         nan         nan
+x4          -165.3971        nan        nan        nan         nan         nan
+x5           300.8820        nan        nan        nan         nan         nan
+x6           681.0071        nan        nan        nan         nan         nan
+x7                  0        nan        nan        nan         nan         nan
+x8          -609.2950        nan        nan        nan         nan         nan
+sigma2      8348.2042        nan        nan        nan         nan         nan
+                             Regime 1 parameters                              
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          8.0731        nan        nan        nan         nan         nan
+x1            -1.5692        nan        nan        nan         nan         nan
+x2            -1.4739        nan        nan        nan         nan         nan
+x3             0.1967        nan        nan        nan         nan         nan
+x4            58.9371        nan        nan        nan         nan         nan
+x5          -102.5944        nan        nan        nan         nan         nan
+x6          -243.6021        nan        nan        nan         nan         nan
+x7                  0        nan        nan        nan         nan         nan
+x8           176.6105        nan        nan        nan         nan         nan
+sigma2      1918.8368        nan        nan        nan         nan         nan
+                             Regime 2 parameters                              
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.9633        nan        nan        nan         nan         nan
+x1            -1.7278        nan        nan        nan         nan         nan
+x2             0.2027        nan        nan        nan         nan         nan
+x3             0.3944        nan        nan        nan         nan         nan
+x4            -6.1325        nan        nan        nan         nan         nan
+x5             9.3685        nan        nan        nan         nan         nan
+x6            25.4755        nan        nan        nan         nan         nan
+x7                  0        nan        nan        nan         nan         nan
+x8           -14.3400        nan        nan        nan         nan         nan
+sigma2       508.9354        nan        nan        nan         nan         nan
+                         Regime transition parameters                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+p[0->0]        0.3501        nan        nan        nan         nan         nan
+p[1->0]        0.3198        nan        nan        nan         nan         nan
+p[2->0]        0.1907        nan        nan        nan         nan         nan
+p[0->1]        0.3920        nan        nan        nan         nan         nan
+p[1->1]        0.4112        nan        nan        nan         nan         nan
+p[2->1]        0.3836        nan        nan        nan         nan         nan
+==============================================================================
+
+Warnings:
+[1] Covariance matrix is singular or near-singular, with condition number    nan. Standard errors may be unstable.

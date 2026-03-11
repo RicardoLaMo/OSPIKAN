@@ -7,3 +7,9 @@ pyyaml
 yfinance
 networkx
 pytest
+pyarrow
+matplotlib
+statsmodels
+scipy
+seaborn
+einops

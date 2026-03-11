@@ -1,0 +1,161 @@
+version: 2
+
+defaults:
+  provider: yfinance
+  start_date: "2010-01-01"
+  end_date: null
+  interval: 1d
+
+# Enhanced silver universe with multi-asset intelligence
+# Separates monetary, industrial, and cross-sectional dynamics
+universe:
+  # Core silver exposure (physical, ETPs, primary futures)
+  silver_core:
+    - SI=F       # Silver futures (COMEX, primary benchmark)
+    - SLV        # iShares Silver Trust ETF (largest ETP)
+    - SIVR       # Aberdeen Standard Silver ETF (lower expense ratio alternative)
+
+  # Silver mining equities (leading indicator + leverage)
+  silver_miners:
+    - SIL        # Global X Silver Miners ETF (senior producers)
+    - SILJ       # ETFMG Prime Junior Silver ETF (juniors, high beta)
+    - PAAS       # Pan American Silver Corp (top producer, SA exposure)
+    - AG         # First Majestic Silver Corp (pure play, Mexico)
+    - HL         # Hecla Mining Company (US-based, Greens Creek)
+
+  # Precious metals complex (monetary metal analogs)
+  precious_metals:
+    - GC=F       # Gold futures (primary monetary metal reference)
+    - GLD        # SPDR Gold Trust ETF (alternative to futures)
+    - PA=F       # Palladium futures (industrial + monetary)
+    - PL=F       # Platinum futures (industrial + jewelry)
+    - PALL       # Aberdeen Palladium ETF
+    - PPLT       # Aberdeen Platinum ETF
+
+  # Base metals (industrial cycle proxies)
+  base_metals:
+    - HG=F       # Copper futures (Dr. Copper = economic indicator)
+    - COPX       # Global X Copper Miners ETF (amplified copper signal)
+    # Note: Aluminum (ALI=F) often unavailable in yfinance; using proxies
+
+  # China / EM growth proxies (56% of silver industrial demand)
+  growth_cycle:
+    - FXI        # iShares China Large-Cap ETF (policy-driven growth)
+    - GXC        # SPDR S&P China Industrials ETF (manufacturing direct)
+    - EWZ        # iShares Brazil ETF (commodity cycle, LatAm)
+    - EEM        # iShares MSCI Emerging Markets ETF (broad EM risk)
+    - ASHR       # Xtrackers Harvest CSI 300 CHN A (China A-shares)
+
+  # Real assets / inflation complex (silver's commodity nature)
+  real_assets:
+    - TIP        # iShares TIPS ETF (real yields = silver driver)
+    - DBC        # Invesco DB Commodity Tracking ETF (broad commodity beta)
+    - GSG        # iShares S&P GSCI Commodity-Indexed Trust (alternative)
+
+  # Energy (mining cost driver + industrial cycle)
+  energy:
+    - CL=F       # WTI Crude Oil futures (energy input cost)
+    - USO        # United States Oil Fund (oil ETF)
+    - XLE        # Energy Select Sector SPDR (energy equities)
+
+  # Macro regime indicators (unchanged from base config)
+  macro:
+    - DX-Y.NYB   # US Dollar Index (inverse correlation with silver)
+    - ^TNX       # 10-Year Treasury Yield (real yield proxy)
+    - ^IRX       # 13-Week Treasury Bill (short rate)
+    - ^VIX       # CBOE Volatility Index (risk sentiment)
+    - SPY        # S&P 500 ETF (equity risk appetite)
+    - QQQ        # Nasdaq-100 ETF (growth/tech exposure)
+
+# Manifold definitions for sectional curvature analysis
+# Each manifold represents a distinct market regime driver
+manifolds:
+  monetary:
+    description: "Assets driven by monetary/haven demand (risk-off, inflation hedge)"
+    symbols:
+      - SI=F
+      - SLV
+      - GC=F
+      - GLD
+      - TIP
+      - DX-Y.NYB  # Inverse relationship (dollar strength = monetary demand)
+
+  industrial:
+    description: "Assets driven by industrial cycle (EM growth, manufacturing)"
+    symbols:
+      - SI=F      # Dual nature: appears in both manifolds
+      - HG=F
+      - COPX
+      - PA=F
+      - PL=F
+      - FXI
+      - GXC
+      - EWZ
+      - CL=F
+      - XLE
+
+  miners:
+    description: "Silver mining equities (leading indicator, equity market discount)"
+    symbols:
+      - SIL
+      - SILJ
+      - PAAS
+      - AG
+      - HL
+
+  precious_complex:
+    description: "Full precious metals complex (gold + PGMs)"
+    symbols:
+      - SI=F
+      - SLV
+      - GC=F
+      - GLD
+      - PA=F
+      - PL=F
+      - PALL
+      - PPLT
+
+  commodities:
+    description: "Broad commodity exposure (inflation signal)"
+    symbols:
+      - SI=F
+      - GC=F
+      - HG=F
+      - CL=F
+      - DBC
+      - GSG
+      - TIP
+
+  risk_indicators:
+    description: "Macro risk sentiment (VIX, equities, USD)"
+    symbols:
+      - ^VIX
+      - SPY
+      - QQQ
+      - DX-Y.NYB
+      - ^TNX
+
+outputs:
+  raw_dir: data/raw
+  interim_dir: data/interim
+  processed_dir: data/processed
+  metadata_dir: data/raw/_runs
+
+# Feature engineering parameters (advanced)
+feature_config:
+  # Rolling window sizes
+  short_window: 20   # For realized volatility, momentum
+  medium_window: 60  # For curvature, betas, correlations
+  long_window: 120   # For long-horizon trends
+
+  # Curvature computation
+  min_assets_curvature: 3      # Minimum assets required for valid curvature
+  ricci_percentiles: [10, 90]  # Tail curvature percentiles to track
+
+  # Sectional curvature (new)
+  compute_sectional: true      # Enable manifold-specific curvatures
+  curvature_divergence: true   # Compute cross-manifold divergence signals
+
+  # Advanced geometry (future implementation)
+  normalized_ricci_flow: false  # Placeholder for normalized flow
+  geodesic_metrics: false       # Placeholder for geodesic distances

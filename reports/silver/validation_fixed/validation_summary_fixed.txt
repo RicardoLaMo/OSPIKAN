@@ -1,0 +1,67 @@
+OUT-OF-SAMPLE VALIDATION SUMMARY (FIXED - No Data Leakage)
+================================================================================
+
+Features file: data/processed/silver_features_20260112-205924_5c4f0d4fec.parquet
+Generated: 2026-01-13 10:58:30.196119
+
+METHODOLOGICAL FIXES:
+1. Regime thresholds computed per-fold on training data only
+2. Label-defining features excluded from predictors
+3. Predictions deduplicated before metrics computation
+4. All models validated on identical date windows
+5. Sharpe ratios computed on PREDICTED regimes
+
+
+BASE Model
+--------------------------------------------------------------------------------
+  Mean Accuracy: 0.6450 ± 0.2023
+  Validation Folds: 48
+  Transitions Detected: 38 / 239
+  Predictions (full): 12,096
+  Predictions (deduplicated): 3,213
+
+  Sharpe Ratios (Actual Regimes):
+    STABLE      :   1.995
+    STRESS      :  -1.816
+    TRANSITION  :  -0.013
+
+  Sharpe Ratios (Predicted Regimes - Trading Reality):
+    STABLE      :   2.354
+    STRESS      :  -0.716
+    TRANSITION  :   0.197
+
+MACRO Model
+--------------------------------------------------------------------------------
+  Mean Accuracy: 0.6667 ± 0.2068
+  Validation Folds: 48
+  Transitions Detected: 30 / 239
+  Predictions (full): 12,096
+  Predictions (deduplicated): 3,213
+
+  Sharpe Ratios (Actual Regimes):
+    STABLE      :   1.995
+    STRESS      :  -1.816
+    TRANSITION  :  -0.013
+
+  Sharpe Ratios (Predicted Regimes - Trading Reality):
+    STABLE      :   2.764
+    STRESS      :  -1.157
+    TRANSITION  :   0.140
+
+SECTIONAL Model
+--------------------------------------------------------------------------------
+  Mean Accuracy: 0.6543 ± 0.2029
+  Validation Folds: 48
+  Transitions Detected: 25 / 239
+  Predictions (full): 12,096
+  Predictions (deduplicated): 3,213
+
+  Sharpe Ratios (Actual Regimes):
+    STABLE      :   1.995
+    STRESS      :  -1.816
+    TRANSITION  :  -0.013
+
+  Sharpe Ratios (Predicted Regimes - Trading Reality):
+    STABLE      :   2.414
+    STRESS      :  -0.653
+    TRANSITION  :   0.137

@@ -1,0 +1,39 @@
+OUT-OF-SAMPLE VALIDATION SUMMARY
+================================================================================
+
+Features file: data/processed/silver_features_20260112-205924_5c4f0d4fec.parquet
+Generated: 2026-01-12 21:41:23.549046
+
+
+BASE Model
+--------------------------------------------------------------------------------
+  Mean Accuracy: 0.8374 ± 0.1426
+  Validation Folds: 48
+  Transitions Detected: 203 / 627
+
+  Sharpe Ratios by Regime:
+    STABLE      :   2.954
+    STRESS      :  -1.270
+    TRANSITION  :  -0.032
+
+MACRO Model
+--------------------------------------------------------------------------------
+  Mean Accuracy: 0.7984 ± 0.1474
+  Validation Folds: 49
+  Transitions Detected: 158 / 635
+
+  Sharpe Ratios by Regime:
+    STABLE      :   2.913
+    STRESS      :  -1.264
+    TRANSITION  :   0.038
+
+SECTIONAL Model
+--------------------------------------------------------------------------------
+  Mean Accuracy: 0.8382 ± 0.1336
+  Validation Folds: 48
+  Transitions Detected: 160 / 628
+
+  Sharpe Ratios by Regime:
+    STABLE      :   2.913
+    STRESS      :  -1.225
+    TRANSITION  :   0.052

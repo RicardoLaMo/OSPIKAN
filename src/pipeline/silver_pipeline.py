@@ -4,10 +4,12 @@ import json
 import os
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+import numpy as np
 import pandas as pd
 import yaml
 
@@ -24,6 +26,12 @@ class UniverseConfig:
 
 def _utc_now_compact() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+
+
+# Allow `python src/pipeline/silver_pipeline.py ...` while still importing `src.*`.
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 
 def _safe_slug(text: str) -> str:
@@ -118,6 +126,36 @@ def _make_run_id(config_path: str, symbols: List[str]) -> str:
 
 def _ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
+
+
+def _write_parquet_safe(df: pd.DataFrame, path: str) -> None:
+    """
+    Writes Parquet in a Drive-mount-safe way.
+
+    Some FUSE/drive mounts can produce 0-byte Parquet files when pyarrow writes
+    directly to the mount. Also, `tempfile.mkstemp()` uses exclusive-create
+    semantics that can fail on these mounts.
+
+    Strategy: serialize Parquet to an in-memory buffer, then write bytes with a
+    regular file handle.
+    """
+    _ensure_dir(os.path.dirname(path) or ".")
+
+    try:
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+    except Exception as e:
+        raise RuntimeError(
+            "Parquet write requires `pyarrow`. Install it or switch outputs to CSV."
+        ) from e
+
+    table = pa.Table.from_pandas(df, preserve_index=True)
+    sink = pa.BufferOutputStream()
+    pq.write_table(table, sink)
+    buf = sink.getvalue().to_pybytes()
+
+    with open(path, "wb") as f:
+        f.write(buf)
 
 
 def _normalize_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
@@ -256,6 +294,7 @@ def ingest_universe(
         "results": {},
     }
 
+    n_written = 0
     for symbol in symbols:
         df, meta = fetch_symbol_history(
             symbol,
@@ -270,11 +309,28 @@ def ingest_universe(
 
         if not df.empty:
             df.to_csv(out_path, index=True)
+            n_written += 1
         run_meta["results"][symbol] = meta
 
     # Write run metadata last so partial runs can be detected.
-    with open(os.path.join(run_dir, "run_metadata.json"), "w", encoding="utf-8") as f:
+    meta_path = os.path.join(run_dir, "run_metadata.json")
+    with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(run_meta, f, indent=2, sort_keys=True)
+
+    if n_written == 0:
+        example_errors: List[str] = []
+        for sym, res in run_meta.get("results", {}).items():
+            err = res.get("error")
+            if err:
+                example_errors.append(f"{sym}: {err}")
+
+        msg = (
+            "Ingest produced no data for any symbol. "
+            f"Check dependencies/network and inspect run metadata at `{meta_path}`."
+        )
+        if example_errors:
+            msg += " Example errors: " + " | ".join(example_errors[:3])
+        raise RuntimeError(msg)
 
     with open(os.path.join(cfg.outputs["metadata_dir"], "LATEST"), "w", encoding="utf-8") as f:
         f.write(run_id + "\n")
@@ -336,6 +392,25 @@ def main() -> None:
     p_qa.add_argument("--required", default=None, help="Comma-separated required column names.")
     p_qa.add_argument("--max-missing-rate", type=float, default=None, help="Fail if overall missing rate exceeds this.")
 
+    p_feat = sub.add_parser("features", help="Compute a silver-focused feature table from an aligned close panel.")
+    p_feat.add_argument("--panel", required=True, help="CSV/Parquet close panel (date index in first column).")
+    p_feat.add_argument("--config", default=None, help="Config YAML with manifold definitions (optional, for sectional curvature).")
+    p_feat.add_argument("--out", default=None, help="Output Parquet path (defaults under data/processed/).")
+    p_feat.add_argument("--silver", default="SI=F", help="Silver symbol to use as target.")
+    p_feat.add_argument("--gold", default="GC=F", help="Gold symbol to use for GSR.")
+    p_feat.add_argument("--dxy", default="DX-Y.NYB", help="Dollar index symbol.")
+    p_feat.add_argument("--y10", default="^TNX", help="10Y yield level symbol.")
+    p_feat.add_argument("--spx", default="SPY", help="Equity proxy symbol.")
+    p_feat.add_argument("--vix", default="^VIX", help="VIX symbol.")
+    p_feat.add_argument("--deep-geometry", action="store_true",
+                       help="Enable deep geometry analysis (Ricci flow stability). Increases runtime significantly.")
+    p_feat.add_argument("--macro-features", action="store_true",
+                       help="Enable enhanced macro features (treasury spreads, credit spreads, cross-asset ratios).")
+    p_feat.add_argument("--sectional-curvature", action="store_true",
+                       help="Enable sectional curvature (manifold-specific geometry). Requires --config with manifolds.")
+    p_feat.add_argument("--fluid-dynamics", action="store_true",
+                       help="Enable fluid dynamics features (shock formation index, momentum decay, viscosity).")
+
     args = parser.parse_args()
 
     if args.cmd == "ingest":
@@ -363,7 +438,28 @@ def main() -> None:
 
         panel = build_interim_panel(run_dir, symbols=symbols)
         if panel.empty:
-            raise RuntimeError("No data found to build interim panel (check run dir + symbol outputs).")
+            msg = "No data found to build interim panel (check run dir + symbol outputs)."
+            meta_path = os.path.join(run_dir, "run_metadata.json")
+            if os.path.exists(meta_path):
+                try:
+                    with open(meta_path, "r", encoding="utf-8") as f:
+                        meta = json.load(f) or {}
+                    results = meta.get("results", {}) or {}
+                    total = len(results)
+                    nonzero = sum(1 for r in results.values() if int(r.get("rows") or 0) > 0)
+                    errors = [r.get("error") for r in results.values() if r.get("error")]
+                    unique_errors: List[str] = []
+                    for e in errors:
+                        if e and e not in unique_errors:
+                            unique_errors.append(str(e))
+                    msg += f" Run `{meta.get('run_id', os.path.basename(run_dir))}` produced {nonzero}/{total} non-empty series."
+                    msg += f" Inspect `{meta_path}`."
+                    if unique_errors:
+                        msg += " Example error(s): " + " | ".join(unique_errors[:3])
+                except Exception:
+                    msg += f" (Could not parse `{meta_path}` for diagnostics.)"
+
+            raise RuntimeError(msg)
 
         out_path = args.out or os.path.join(cfg.outputs["interim_dir"], f"silver_panel_close_{run_id}.csv")
         _ensure_dir(os.path.dirname(out_path))
@@ -382,6 +478,99 @@ def main() -> None:
         out_path = args.out or (args.panel + ".qa.json")
         _ensure_dir(os.path.dirname(out_path) or ".")
         write_json(out_path, report)
+        print(out_path)
+        return
+
+    if args.cmd == "features":
+        import re
+        from src.analysis.features import FeatureConfig, compute_silver_features, feature_metadata
+
+        if args.panel.endswith(".parquet"):
+            panel = pd.read_parquet(args.panel)
+        else:
+            panel = pd.read_csv(args.panel, index_col=0, parse_dates=True)
+
+        run_id = None
+        m = re.search(r"silver_panel_close_(.+)\.(csv|parquet)$", os.path.basename(args.panel))
+        if m:
+            run_id = m.group(1)
+        else:
+            run_id = _utc_now_compact()
+
+        # Load manifolds from config if requested
+        manifolds = None
+        if hasattr(args, 'sectional_curvature') and args.sectional_curvature:
+            if args.config:
+                # Load manifolds directly from YAML (not part of UniverseConfig dataclass)
+                config_yaml = _read_yaml(args.config)
+                manifolds_cfg = config_yaml.get('manifolds', {})
+                if manifolds_cfg:
+                    # Convert manifold config to dict of symbol lists
+                    manifolds = {}
+                    for name, mani_spec in manifolds_cfg.items():
+                        if isinstance(mani_spec, dict) and 'symbols' in mani_spec:
+                            manifolds[name] = mani_spec['symbols']
+                        elif isinstance(mani_spec, list):
+                            # Direct list of symbols
+                            manifolds[name] = mani_spec
+                    print(f"Loaded {len(manifolds)} manifolds from config for sectional curvature", file=sys.stderr)
+                else:
+                    print("Warning: --sectional-curvature requested but no manifolds in config", file=sys.stderr)
+            else:
+                print("Warning: --sectional-curvature requested but no --config provided", file=sys.stderr)
+
+        cfg = FeatureConfig()
+        features = compute_silver_features(
+            panel,
+            silver_symbol=args.silver,
+            gold_symbol=args.gold or None,
+            dxy_symbol=args.dxy or None,
+            y10_symbol=args.y10 or None,
+            spx_symbol=args.spx or None,
+            vix_symbol=args.vix or None,
+            config=cfg,
+            include_macro_features=hasattr(args, 'macro_features') and args.macro_features,
+            include_fluid_dynamics=hasattr(args, 'fluid_dynamics') and args.fluid_dynamics,
+            manifolds=manifolds,
+        )
+
+        # Add Geometric Algebra regime features (requires base features to exist)
+        print("Computing GA regime features (Cl(4,0) rotors)...", file=sys.stderr)
+        from src.geometry.ga_regime_features import compute_ga_regime_features
+        ga_features = compute_ga_regime_features(features, window=60, device="cpu")
+        features = pd.concat([features, ga_features], axis=1)
+
+        # Optional: Deep geometry analysis (Ricci flow stability)
+        if hasattr(args, 'deep_geometry') and args.deep_geometry:
+            print("Computing Ricci flow stability (deep geometry mode - may take several minutes)...", file=sys.stderr)
+            from src.geometry.ricci_flow import rolling_ricci_flow_stability
+            returns = panel.apply(lambda x: np.log(x / x.shift(1)), axis=0).dropna(axis=1, how="all")
+            if returns.shape[1] >= 3:
+                flow_stability = rolling_ricci_flow_stability(returns, window=60, flow_steps=20, min_assets=3)
+                features["ricci_flow_stability_60d"] = flow_stability
+                print(f"  Ricci flow stability computed: {flow_stability.notna().sum()} valid values", file=sys.stderr)
+            else:
+                print("  Skipped: insufficient assets for flow analysis", file=sys.stderr)
+
+        out_path = args.out or os.path.join("data", "processed", f"silver_features_{run_id}.parquet")
+        _ensure_dir(os.path.dirname(out_path))
+        _write_parquet_safe(features, out_path)
+
+        meta_path = out_path.replace(".parquet", ".metadata.json")
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump(feature_metadata(
+                silver_symbol=args.silver,
+                gold_symbol=args.gold or None,
+                dxy_symbol=args.dxy or None,
+                y10_symbol=args.y10 or None,
+                spx_symbol=args.spx or None,
+                vix_symbol=args.vix or None,
+                config=cfg,
+                include_macro_features=hasattr(args, 'macro_features') and args.macro_features,
+                include_fluid_dynamics=hasattr(args, 'fluid_dynamics') and args.fluid_dynamics,
+                manifolds=manifolds,
+            ), f, indent=2, sort_keys=True)
+
         print(out_path)
         return
 

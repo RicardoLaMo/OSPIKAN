@@ -21,6 +21,9 @@ data/interim/*
 .venv/
 env/
 
+# Local temp (Drive mounts may not support tempfile probes)
+.tmp/
+
 # Local Git recovery backups
 .git.bak-*/
 .git.partial-*/

@@ -1,0 +1,208 @@
+version: 1
+
+defaults:
+  provider: yfinance
+  start_date: "2010-01-01"
+  end_date: null
+  interval: 1d
+
+# Enhanced universe with orthogonal macro metrics
+# Adds: energy, treasury spreads, credit spreads, real yields, commodities
+universe:
+  # === Silver core (unchanged) ===
+  silver:
+    - SI=F       # Silver futures (primary)
+    - SLV        # iShares Silver Trust ETF
+    - SIVR       # Aberdeen Standard Silver ETF
+    - SIL        # Global X Silver Miners ETF
+    - SILJ       # ETFMG Prime Junior Silver ETF
+
+  # === Precious metals (unchanged) ===
+  cross_metals:
+    - GC=F       # Gold futures (primary)
+    - GLD        # SPDR Gold Trust ETF
+    - HG=F       # Copper futures
+
+  # === ENERGY COMPLEX (NEW) ===
+  energy:
+    - CL=F       # WTI Crude Oil futures (primary energy benchmark)
+    - BZ=F       # Brent Crude futures (international oil)
+    - NG=F       # Natural Gas futures (energy diversification)
+    - USO        # United States Oil Fund (retail oil exposure)
+    - XLE        # Energy Select Sector SPDR (energy equities)
+    - OIH        # VanEck Oil Services ETF (energy services, mining cost proxy)
+
+  # === TREASURY COMPLEX (ENHANCED) ===
+  treasuries:
+    - ^IRX       # 13-Week Treasury Bill (short rate, existing)
+    - ^FVX       # 5-Year Treasury Yield (NEW - mid curve)
+    - ^TNX       # 10-Year Treasury Yield (long rate, existing)
+    - ^TYX       # 30-Year Treasury Yield (NEW - ultra long)
+    - TLT        # iShares 20+ Year Treasury ETF (duration proxy)
+    - SHY        # iShares 1-3 Year Treasury ETF (short duration)
+    - IEF        # iShares 7-10 Year Treasury ETF (mid duration)
+
+  # === CREDIT SPREADS (NEW) ===
+  credit:
+    - LQD        # iShares Investment Grade Corporate Bond ETF (IG credit)
+    - HYG        # iShares High Yield Corporate Bond ETF (HY credit)
+    - JNK        # SPDR High Yield Bond ETF (alternative HY)
+    - EMB        # iShares JP Morgan USD Emerging Market Bond ETF (EM credit)
+    - MUB        # iShares National Muni Bond ETF (tax-exempt, risk-off proxy)
+
+  # === REAL YIELDS & INFLATION (NEW) ===
+  inflation:
+    - TIP        # iShares TIPS ETF (real yields, inflation breakeven)
+    - RINF       # ProShares Inflation Expectations ETF (inflation expectations)
+    - DBC        # Invesco DB Commodity Tracking (broad commodity inflation)
+    - GSG        # iShares S&P GSCI Commodity-Indexed Trust (alternative commodity)
+
+  # === EQUITY RISK (ENHANCED) ===
+  equities:
+    - SPY        # S&P 500 (broad market, existing)
+    - QQQ        # Nasdaq-100 (growth/tech, existing)
+    - IWM        # Russell 2000 (small cap, risk appetite)
+    - EFA        # iShares MSCI EAFE (international developed)
+    - EEM        # iShares MSCI Emerging Markets (EM equity risk)
+    - XLF        # Financial Select Sector SPDR (credit cycle, banking)
+
+  # === VOLATILITY & RISK SENTIMENT (ENHANCED) ===
+  volatility:
+    - ^VIX       # CBOE Volatility Index (equity vol, existing)
+    - ^VXN       # CBOE Nasdaq Volatility Index (tech vol)
+    - VVIX       # VIX of VIX (vol-of-vol, tail risk)
+    # Note: ^MOVE (bond vol) often not available in yfinance, use TLT vol as proxy
+
+  # === CURRENCY & MACRO (ENHANCED) ===
+  macro:
+    - DX-Y.NYB   # US Dollar Index (existing)
+    - UUP        # Invesco DB USD Bullish ETF (alternative DXY)
+    - FXE        # Invesco CurrencyShares Euro Trust (EUR/USD proxy)
+    - FXY        # Invesco CurrencyShares Japanese Yen (JPY strength, risk-off)
+    - FXA        # Invesco CurrencyShares Australian Dollar (commodity currency)
+
+outputs:
+  raw_dir: data/raw
+  interim_dir: data/interim
+  processed_dir: data/processed
+  metadata_dir: data/raw/_runs
+
+# === MANIFOLD GROUPINGS (Phase 2: Sectional Curvature) ===
+# Asset subsets for sectional Ricci curvature analysis
+# Separates monetary (haven) vs industrial (growth) vs mining equity narratives
+manifolds:
+  monetary:
+    description: "Assets driven by monetary/haven demand (risk-off, QE, currency debasement)"
+    symbols:
+      - SI=F       # Silver as monetary metal
+      - SLV
+      - GC=F       # Gold (primary haven)
+      - GLD
+      - TIP        # TIPS (real rates, inflation hedge)
+      - TLT        # Long treasuries (safe haven)
+      - FXY        # Japanese Yen (risk-off currency)
+
+  industrial:
+    description: "Assets driven by industrial/growth cycle (China, EM, manufacturing)"
+    symbols:
+      - SI=F       # Silver as industrial metal
+      - HG=F       # Copper (Dr. Copper, growth indicator)
+      - CL=F       # Oil (energy, economic activity)
+      - XLE        # Energy equities
+      - EEM        # Emerging markets (growth proxy)
+      - IWM        # Small cap (domestic growth)
+      - FXA        # Australian Dollar (commodity currency)
+
+  miners:
+    description: "Silver mining equities (equity market leads physical, leverage play)"
+    symbols:
+      - SIL        # Global X Silver Miners (senior miners)
+      - SILJ       # Junior silver miners
+      - XLF        # Financials (credit cycle, mining financing)
+
+  credit:
+    description: "Credit cycle assets (leads equity/commodity by 2-4 weeks)"
+    symbols:
+      - LQD        # Investment Grade
+      - HYG        # High Yield
+      - EMB        # Emerging market debt
+      - JNK        # Alternative HY
+      - MUB        # Munis (risk-off)
+
+  volatility:
+    description: "Risk sentiment and volatility regime"
+    symbols:
+      - ^VIX       # Equity volatility
+      - ^VXN       # Nasdaq volatility
+      - TLT        # Bond prices (inverse yields, volatility haven)
+      - GLD        # Gold (vol spike haven)
+
+# Macro feature engineering parameters
+macro_features:
+  # Treasury spreads to compute (yield curve)
+  treasury_spreads:
+    - name: slope_2y_10y
+      long: ^TNX      # 10Y
+      short: ^FVX     # 5Y (proxy for 2Y if ^IRX fails)
+      description: "Yield curve slope (10Y-2Y)"
+
+    - name: slope_10y_30y
+      long: ^TYX      # 30Y
+      short: ^TNX     # 10Y
+      description: "Long-end steepness (30Y-10Y)"
+
+    - name: term_premium
+      long: ^TNX      # 10Y
+      short: ^IRX     # 3M
+      description: "Term premium (10Y-3M), recession indicator"
+
+  # Credit spreads to compute
+  credit_spreads:
+    - name: ig_hy_spread
+      risky: HYG      # High Yield
+      safe: LQD       # Investment Grade
+      description: "IG-HY credit spread (risk appetite)"
+
+    - name: hy_treasury_spread
+      risky: HYG      # High Yield
+      safe: IEF       # 7-10Y Treasury
+      description: "HY vs Treasury (credit risk premium)"
+
+    - name: em_ig_spread
+      risky: EMB      # EM Bonds
+      safe: LQD       # IG Corporate
+      description: "EM vs IG (emerging market risk)"
+
+  # Cross-asset ratios (orthogonal signals)
+  cross_asset_ratios:
+    - name: gold_oil_ratio
+      numerator: GC=F
+      denominator: CL=F
+      description: "Gold/Oil ratio (monetary vs energy)"
+
+    - name: copper_gold_ratio
+      numerator: HG=F
+      denominator: GC=F
+      description: "Copper/Gold ratio (growth vs haven, Dr. Copper)"
+
+    - name: equity_bond_ratio
+      numerator: SPY
+      denominator: TLT
+      description: "Stock/Bond ratio (risk-on vs risk-off)"
+
+    - name: em_dm_equity_ratio
+      numerator: EEM
+      denominator: EFA
+      description: "EM/DM equity ratio (risk appetite)"
+
+  # Volatility metrics
+  volatility_metrics:
+    - name: vix_term_structure
+      spot: ^VIX
+      future: ^VXN     # Proxy: use Nasdaq vol as "future" vs SPX vol
+      description: "VIX term structure slope (contango = calm, backwardation = stress)"
+
+    - name: equity_bond_vol_ratio
+      equity_vol: ^VIX
+      bond_proxy: TLT  # Compute TLT realized vol
+      description: "Equity vol vs bond vol (flight to quality)"

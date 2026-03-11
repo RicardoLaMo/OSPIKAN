@@ -8,6 +8,7 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.pipeline.silver_pipeline import build_interim_panel, flatten_universe, load_universe_config
+import src.pipeline.silver_pipeline as silver_pipeline
 
 
 def test_load_universe_config_roundtrip(tmp_path):
@@ -69,3 +70,51 @@ def test_build_interim_panel_reads_close(tmp_path):
     assert list(panel.columns) == ["AAA", "BBB"]
     assert panel.loc["2024-01-02", "AAA"] == 10.0
     assert panel.loc["2024-01-02", "BBB"] == 21.0
+
+
+def test_ingest_universe_raises_when_all_symbols_empty(tmp_path, monkeypatch):
+    config_path = tmp_path / "silver_universe.yaml"
+    metadata_dir = tmp_path / "runs"
+
+    config_path.write_text(
+        f"""
+version: 1
+defaults:
+  provider: yfinance
+  start_date: "2020-01-01"
+  end_date: null
+  interval: 1d
+universe:
+  silver:
+    - SI=F
+outputs:
+  metadata_dir: {metadata_dir.as_posix()}
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    def fake_fetch_symbol_history(symbol: str, *, start_date: str, end_date: str | None, provider: str):
+        df = pd.DataFrame()
+        meta = {
+            "symbol": symbol,
+            "provider": provider,
+            "source": None,
+            "error": "test_empty",
+            "rows": 0,
+            "start": None,
+            "end": None,
+            "columns": [],
+        }
+        return df, meta
+
+    monkeypatch.setattr(silver_pipeline, "fetch_symbol_history", fake_fetch_symbol_history)
+
+    with pytest.raises(RuntimeError):
+        silver_pipeline.ingest_universe(str(config_path))
+
+    assert metadata_dir.exists()
+    run_dirs = [p for p in metadata_dir.iterdir() if p.is_dir()]
+    assert len(run_dirs) == 1
+    assert (run_dirs[0] / "run_metadata.json").exists()
+    assert not (metadata_dir / "LATEST").exists()

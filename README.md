@@ -26,4 +26,5 @@ This project leverages Geometric Algebra (GA) to analyze multi-asset portfolios.
 ## Silver Trend/Regime Project
 - Plan: `silver_trend_regime_plan.md`
 - Workflow + Git conventions: `docs/WORKFLOW.md`
+- End-to-end runbook: `docs/END_TO_END.md`
 - Pipeline (universe ingest + alignment): `python src/pipeline/silver_pipeline.py --help`
