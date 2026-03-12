@@ -12,36 +12,38 @@ def build_system_prompt() -> str:
     Returns:
         System prompt string
     """
-    return """You are an expert options trading DSL translator. Your job is to convert natural language queries into a precise Domain-Specific Language (DSL) for option pricing and regime analysis.
+    return """You are an expert options trading DSL translator. Your job is to convert natural language queries into a precise Domain-Specific Language (DSL) for option pricing, regime analysis, and market outlook.
 
 RULES:
 1. Output EXACTLY ONE DSL command line. No explanations, no preamble.
-2. Use UPPERCASE for verbs: PRICE, REGIME, COVARIANCE, TRANSITION, WHAT_IF, EXPLAIN, SURFACE
-3. Use UPPERCASE for regime names: STABLE, TRANSITION, STRESS, RECOVERY
-4. Time format: 30d (days), 4w (weeks), 6m (months), or 0.5 (years as decimal)
-5. List format: [item1,item2,item3] with no spaces after commas
-6. Capitalization: call/put (lowercase), asset names (lowercase)
-7. Always use parameter names exactly as shown in examples: type=, S=, K=, T=, sigma=, regime=, r=, q=, asset=, etc.
+2. Prefer finance-native UPPERCASE verbs: QUOTE, REGIME, RISK, TRANSITION, SCENARIO, EXPLAIN, SURFACE, OUTLOOK
+3. Legacy verbs are also accepted: PRICE, COVARIANCE, WHAT_IF
+4. Use UPPERCASE for regime names: STABLE, TRANSITION, STRESS, RECOVERY
+5. Time format: 30d (days), 4w (weeks), 6m (months), or 0.5 (years as decimal)
+6. List format: [item1,item2,item3] with no spaces after commas
+7. Capitalization: call/put (lowercase), asset names (lowercase)
+8. Prefer finance-native parameter names when possible: spot, strike, expiry, vol, rate, dividend, basket, lookback, target, metrics, backdrop
+9. Percent inputs are allowed for vol/rates/dividends, e.g. 20%, 5%, 2%
 
-DSL COMMAND SYNTAX:
+PREFERRED DSL COMMAND SYNTAX:
 
-PRICE option type=call/put S=<spot> K=<strike> T=<time> sigma=<vol> [regime=<regime>] [r=<rate>] [q=<dividend>]
-  Example: PRICE option type=call S=100 K=105 T=30d sigma=0.2 regime=STRESS r=0.05
+QUOTE call/put spot=<spot> strike=<strike> expiry=<time> vol=<vol> [backdrop=<regime>] [rate=<rate>] [dividend=<dividend>]
+  Example: QUOTE call spot=100 strike=105 expiry=30d vol=20% backdrop=STRESS rate=5%
 
 REGIME current asset=<asset>
   Example: REGIME current asset=silver
 
-REGIME prob from=<regime> to=<regime> horizon=<time>
-  Example: REGIME prob from=STABLE to=STRESS horizon=10d
+REGIME odds from=<regime> toward=<regime> horizon=<time>
+  Example: REGIME odds from=STABLE toward=STRESS horizon=10d
 
-COVARIANCE assets=[asset1,asset2,asset3] regime=<regime> window=<time>
-  Example: COVARIANCE assets=[silver,gold,dxy] regime=STRESS window=60d
+RISK basket=[asset1,asset2,asset3] backdrop=<regime> lookback=<time>
+  Example: RISK basket=[silver,gold,dxy] backdrop=STRESS lookback=60d
 
 TRANSITION matrix asset=<asset> normalize=true/false
   Example: TRANSITION matrix asset=silver normalize=true
 
-WHAT_IF regime_shift to=<regime> asset=<asset> [S=<spot>] [K=<strike>] [T=<time>] show=[field1,field2]
-  Example: WHAT_IF regime_shift to=STRESS asset=silver show=[delta,vega,price]
+SCENARIO asset=<asset> target=<regime> [spot=<spot>] [strike=<strike>] [expiry=<time>] metrics=[field1,field2]
+  Example: SCENARIO asset=silver target=STRESS metrics=[delta,vega,price]
 
 EXPLAIN regime=<regime> features=[feature1,feature2]
   Example: EXPLAIN regime=TRANSITION features=[ricci_curvature,mst_stress]
@@ -49,8 +51,17 @@ EXPLAIN regime=<regime> features=[feature1,feature2]
 SURFACE vol asset=<asset> regime=<regime> strikes=[k1,k2,k3] T=<time>
   Example: SURFACE vol asset=silver regime=STABLE strikes=[0.9,1.0,1.1] T=30d
 
+OUTLOOK asset=<asset> horizon=<time> [backdrop=<regime>]
+  Example: OUTLOOK asset=silver horizon=10d backdrop=STRESS
+
+LEGACY DSL COMMAND SYNTAX (still accepted):
+PRICE option type=call/put S=<spot> K=<strike> T=<time> sigma=<vol> [regime=<regime>] [r=<rate>] [q=<dividend>]
+REGIME prob from=<regime> to=<regime> horizon=<time>
+COVARIANCE assets=[asset1,asset2,asset3] regime=<regime> window=<time>
+WHAT_IF regime_shift to=<regime> asset=<asset> [S=<spot>] [K=<strike>] [T=<time>] show=[field1,field2]
+
 VOLATILITY SPECIFICATIONS:
-- Float: 0.2, 0.25, etc.
+- Float or percent: 0.2, 20%, 0.25, etc.
 - Regime-adjusted: kan_regime (looks up from KAN network)
 - Historical: hist_20d, hist_60d (future feature)
 
@@ -70,6 +81,16 @@ def build_few_shot_examples() -> str:
         String with 12 examples covering all DSL verbs
     """
     examples = [
+        # Finance-native QUOTE examples
+        ("Quote a call with spot 100, strike 105, 30 days to expiry, 20% volatility",
+         "QUOTE call spot=100 strike=105 expiry=30d vol=20%"),
+
+        ("Price a silver put in a stress backdrop, 60 days out, 35% vol, 3% risk-free rate",
+         "QUOTE put spot=50 strike=48 expiry=60d vol=35% backdrop=STRESS rate=3%"),
+
+        ("Quote an at-the-money silver call using regime-adjusted volatility in recovery, 90 days out",
+         "QUOTE call spot=100 strike=100 expiry=90d vol=kan_regime backdrop=RECOVERY"),
+
         # PRICE examples
         ("Price a call option with spot 100, strike 105, 30 days to expiry, 20% volatility",
          "PRICE option type=call S=100 K=105 T=30d sigma=0.2"),
@@ -87,9 +108,15 @@ def build_few_shot_examples() -> str:
         ("What's the probability of transitioning from stable to stress in 10 days?",
          "REGIME prob from=STABLE to=STRESS horizon=10d"),
 
+        ("What are the odds of moving from stable to stress over the next 10 days?",
+         "REGIME odds from=STABLE toward=STRESS horizon=10d"),
+
         # COVARIANCE example
         ("Get the covariance matrix for silver, gold, and DXY in stress regime over 60 days",
          "COVARIANCE assets=[silver,gold,dxy] regime=STRESS window=60d"),
+
+        ("Show the basket risk for silver, gold, and DXY in a stress backdrop over 60 days",
+         "RISK basket=[silver,gold,dxy] backdrop=STRESS lookback=60d"),
 
         # TRANSITION example
         ("Show the transition matrix for silver regimes",
@@ -99,6 +126,9 @@ def build_few_shot_examples() -> str:
         ("Analyze how the Greeks would change if silver shifted to a stress regime. Show delta, vega, and price.",
          "WHAT_IF regime_shift to=STRESS asset=silver show=[delta,vega,price]"),
 
+        ("Run a silver stress scenario and show delta, vega, and price",
+         "SCENARIO asset=silver target=STRESS metrics=[delta,vega,price]"),
+
         # EXPLAIN example
         ("Explain the characteristics of transition regimes using Ricci curvature and MST stress",
          "EXPLAIN regime=TRANSITION features=[ricci_curvature,mst_stress]"),
@@ -106,6 +136,9 @@ def build_few_shot_examples() -> str:
         # SURFACE example
         ("Generate a volatility surface for silver across different strikes (0.9 to 1.1) in stable regime, 30 days",
          "SURFACE vol asset=silver regime=STABLE strikes=[0.9,0.95,1.0,1.05,1.1] T=30d"),
+
+        ("Give me the near-term outlook for silver over the next 10 days in a stress backdrop",
+         "OUTLOOK asset=silver horizon=10d backdrop=STRESS"),
 
         # Additional examples
         ("Price a call with spot 110, strike 100, 6 months, 25% vol, in recovery regime, 2% dividend",

@@ -18,6 +18,7 @@ from .ast_nodes import (
     WhatIfQuery,
     ExplainQuery,
     SurfaceQuery,
+    OutlookQuery,
 )
 from ..pricing.regime_adjusted import RegimeAdjustedPricer
 
@@ -26,6 +27,7 @@ from ..pricing.regime_adjusted import RegimeAdjustedPricer
 class ExecutionContext:
     """Context for DSL query execution."""
     kan_store: Optional[Any] = None  # KANKnowledgeStore
+    spikan_engine: Optional[Any] = None  # SPIKANOutlookEngine
     regime_classifier: Optional[Any] = None  # geometric_regime_classification function
     transition_matrix_fn: Optional[Any] = None  # regime_transition_matrix function
     current_regime_features: Optional[Dict[str, float]] = None  # Current market state
@@ -74,6 +76,8 @@ class DSLExecutor:
             return self._execute_explain(node)
         elif isinstance(node, SurfaceQuery):
             return self._execute_surface(node)
+        elif isinstance(node, OutlookQuery):
+            return self._execute_outlook(node)
         else:
             raise ValueError(f"Unknown query type: {type(node)}")
 
@@ -273,6 +277,20 @@ class DSLExecutor:
             "strikes": surface_result["strikes"],
             "vols": surface_result["vols"],
         }
+
+    def _execute_outlook(self, query: OutlookQuery) -> Dict[str, Any]:
+        """Execute OUTLOOK query."""
+        if not self.context.spikan_engine:
+            raise RuntimeError("SPIKAN outlook engine required for outlook query")
+
+        backdrop = query.regime or self.context.current_regime_label or "current"
+        regime_features = self._get_regime_features(query.regime)
+        return self.context.spikan_engine.outlook(
+            asset=query.asset,
+            horizon=query.horizon,
+            regime=backdrop,
+            regime_features=regime_features,
+        )
 
     def _get_regime_features(self, regime_name: Optional[str]) -> Dict[str, float]:
         """

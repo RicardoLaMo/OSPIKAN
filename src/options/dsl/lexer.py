@@ -19,6 +19,7 @@ class TokenKind(Enum):
     WHAT_IF = auto()
     EXPLAIN = auto()
     SURFACE = auto()
+    OUTLOOK = auto()
 
     # Keywords
     OPTION = auto()
@@ -58,15 +59,20 @@ class Lexer:
 
     KEYWORDS = {
         "PRICE": TokenKind.PRICE,
+        "QUOTE": TokenKind.PRICE,
         "REGIME": TokenKind.REGIME,
         "COVARIANCE": TokenKind.COVARIANCE,
+        "RISK": TokenKind.COVARIANCE,
         "TRANSITION": TokenKind.TRANSITION,
         "WHAT_IF": TokenKind.WHAT_IF,
+        "SCENARIO": TokenKind.WHAT_IF,
         "EXPLAIN": TokenKind.EXPLAIN,
         "SURFACE": TokenKind.SURFACE,
+        "OUTLOOK": TokenKind.OUTLOOK,
         "option": TokenKind.OPTION,
         "current": TokenKind.CURRENT,
         "prob": TokenKind.PROB,
+        "odds": TokenKind.PROB,
         "matrix": TokenKind.MATRIX,
         "assets": TokenKind.ASSETS,
         "regime_shift": TokenKind.REGIME_SHIFT,
@@ -183,6 +189,8 @@ class Lexer:
             # Numbers and time suffixes
             elif ch.isdigit():
                 num_token = self.read_number()
+                if self.peek() == '%':
+                    num_token.value += self.advance()
                 # Check if followed by time suffix letter (d, w, m)
                 if self.peek() and self.peek() in 'dwm':
                     suffix_token = self.read_time_suffix()

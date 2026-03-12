@@ -15,6 +15,7 @@ from .ast_nodes import (
     WhatIfQuery,
     ExplainQuery,
     SurfaceQuery,
+    OutlookQuery,
 )
 
 
@@ -70,6 +71,8 @@ class DSLValidator:
             self._validate_explain(node)
         elif isinstance(node, SurfaceQuery):
             self._validate_surface(node)
+        elif isinstance(node, OutlookQuery):
+            self._validate_outlook(node)
 
     def _validate_price(self, node: PriceQuery) -> None:
         """Validate PriceQuery."""
@@ -175,3 +178,12 @@ class DSLValidator:
 
         if node.vol_type not in ("implied", "realized", "kan"):
             raise ValidationError(f"Invalid vol_type: {node.vol_type}")
+
+    def _validate_outlook(self, node: OutlookQuery) -> None:
+        """Validate OutlookQuery."""
+        if node.asset not in self.VALID_ASSETS:
+            raise ValidationError(f"Unknown asset: {node.asset}")
+        if node.horizon <= 0:
+            raise ValidationError(f"Horizon must be positive: {node.horizon}")
+        if node.regime and node.regime not in self.VALID_REGIMES:
+            raise ValidationError(f"Invalid regime: {node.regime}")

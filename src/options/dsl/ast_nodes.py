@@ -114,3 +114,16 @@ class SurfaceQuery(ASTNode):
     strikes: List[float]  # moneyness ratios or absolute strikes
     time_to_expiry: float  # in years
     vol_type: str = "implied"  # 'implied', 'realized', 'kan'
+
+
+@dataclass
+class OutlookQuery(ASTNode):
+    """
+    OUTLOOK asset=silver horizon=10d [regime=STRESS]
+
+    Produces a trader-facing market outlook using SPIKAN dynamics conditioned
+    on the current or requested market backdrop.
+    """
+    asset: str
+    horizon: float  # in years
+    regime: Optional[str] = None  # Optional backdrop / regime override

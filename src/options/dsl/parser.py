@@ -16,6 +16,7 @@ from .ast_nodes import (
     WhatIfQuery,
     ExplainQuery,
     SurfaceQuery,
+    OutlookQuery,
 )
 
 
@@ -37,6 +38,21 @@ def parse_dsl(text: str) -> ASTNode:
 
 class Parser:
     """Recursive descent parser for DSL."""
+
+    PARAM_ALIASES = {
+        "S": ("spot",),
+        "K": ("strike",),
+        "T": ("expiry", "tenor", "maturity"),
+        "sigma": ("vol", "volatility"),
+        "r": ("rate",),
+        "q": ("dividend", "yield"),
+        "assets": ("basket",),
+        "window": ("lookback",),
+        "show": ("metrics",),
+        "to": ("target", "toward"),
+        "regime": ("backdrop", "state"),
+        "asset": ("underlying",),
+    }
 
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
@@ -92,19 +108,26 @@ class Parser:
             return self.parse_explain()
         elif token.kind == TokenKind.SURFACE:
             return self.parse_surface()
+        elif token.kind == TokenKind.OUTLOOK:
+            return self.parse_outlook()
         else:
             self.error(f"Unknown command: {token.value}")
 
     def parse_price(self) -> PriceQuery:
         """Parse: PRICE option type=call S=30 K=32 T=45d sigma=kan_regime [regime=STRESS] [r=0.05]"""
         self.expect(TokenKind.PRICE)
-        self.expect(TokenKind.OPTION)
+
+        inline_option_type = None
+        if self.current_token().kind == TokenKind.OPTION:
+            self.advance()
+        elif self.current_token().kind == TokenKind.IDENTIFIER and self.current_token().value in ("call", "put"):
+            inline_option_type = self.advance().value
 
         # Parse required parameters
         params = self.parse_params()
 
         # Extract parameters
-        option_type = self._get_param(params, "type", required=True)
+        option_type = inline_option_type or self._get_param(params, "type", required=True)
         spot_price = float(self._get_param(params, "S", required=True))
         strike_price = float(self._get_param(params, "K", required=True))
         time_str = self._get_param(params, "T", required=True)
@@ -113,8 +136,8 @@ class Parser:
 
         # Parse optional parameters
         regime = self._get_param(params, "regime", required=False)
-        risk_free_rate = float(self._get_param(params, "r", required=False, default="0.05"))
-        dividend_yield = float(self._get_param(params, "q", required=False, default="0.0"))
+        risk_free_rate = self._parse_ratio(self._get_param(params, "r", required=False, default="0.05"))
+        dividend_yield = self._parse_ratio(self._get_param(params, "q", required=False, default="0.0"))
 
         return PriceQuery(
             option_type=option_type,
@@ -175,7 +198,8 @@ class Parser:
     def parse_what_if(self) -> WhatIfQuery:
         """Parse: WHAT_IF regime_shift to=STRESS asset=silver show=[delta,vega,vol,price]"""
         self.expect(TokenKind.WHAT_IF)
-        self.expect(TokenKind.REGIME_SHIFT)
+        if self.current_token().kind == TokenKind.REGIME_SHIFT:
+            self.advance()
         params = self.parse_params()
 
         to_regime = self._get_param(params, "to", required=True)
@@ -228,6 +252,18 @@ class Parser:
             vol_type=vol_type,
         )
 
+    def parse_outlook(self) -> OutlookQuery:
+        """Parse: OUTLOOK asset=silver horizon=10d [regime=STRESS]."""
+        self.expect(TokenKind.OUTLOOK)
+        params = self.parse_params()
+
+        asset = self._get_param(params, "asset", required=True)
+        horizon_str = self._get_param(params, "horizon", required=True)
+        horizon = self._parse_time(horizon_str)
+        regime = self._get_param(params, "regime", required=False)
+
+        return OutlookQuery(asset=asset, horizon=horizon, regime=regime)
+
     def parse_params(self) -> dict:
         """Parse key=value or key=[...] parameters until EOF."""
         params = {}
@@ -268,6 +304,9 @@ class Parser:
         """Get a parameter value, with optional default."""
         if key in params:
             return params[key]
+        for alias in self.PARAM_ALIASES.get(key, ()):
+            if alias in params:
+                return params[alias]
         if required and default is None:
             self.error(f"Missing required parameter: {key}")
         return default
@@ -327,10 +366,23 @@ class Parser:
             float or string identifier
         """
         try:
-            return float(vol_str)
+            return self._parse_ratio(vol_str)
         except ValueError:
             # It's a string like 'kan_regime' or 'hist_20d'
             return vol_str
+
+    def _parse_ratio(self, value: str) -> float:
+        """
+        Parse a decimal or finance-style percentage.
+
+        Examples:
+            0.2  -> 0.2
+            20%  -> 0.2
+            5%   -> 0.05
+        """
+        if value.endswith("%"):
+            return float(value[:-1]) / 100.0
+        return float(value)
 
     def _parse_list(self, list_str: str) -> List[str]:
         """

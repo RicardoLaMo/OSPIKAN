@@ -22,7 +22,9 @@ class TestPrompts:
         prompt = build_system_prompt()
 
         assert "UPPERCASE" in prompt
+        assert "QUOTE" in prompt
         assert "PRICE" in prompt
+        assert "OUTLOOK" in prompt
         assert "30d" in prompt
         assert "[item1,item2,item3]" in prompt
 
@@ -32,6 +34,7 @@ class TestPrompts:
 
         assert "Q:" in examples
         assert "A:" in examples
+        assert "QUOTE" in examples
         assert "PRICE" in examples
         assert "REGIME" in examples
 

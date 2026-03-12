@@ -14,3 +14,5 @@ scipy
 seaborn
 einops
 requests
+rich>=13.0
+anthropic>=0.25

@@ -115,6 +115,18 @@ class TestExecutorPrice:
         assert 0 < result["price"] < 5.0
         assert result["delta"] < 0.5
 
+    def test_execute_quote_alias(self):
+        """Test finance-native QUOTE execution path."""
+        dsl = "QUOTE call spot=100 strike=100 expiry=0.25 vol=20%"
+        node = parse_dsl(dsl)
+        executor = DSLExecutor()
+
+        result = executor.execute(node)
+
+        assert result["query_type"] == "PRICE"
+        assert result["option_type"] == "call"
+        assert result["price"] > 0
+
 
 class TestExecutorRegime:
     """Test REGIME query execution."""
@@ -256,6 +268,22 @@ class TestExecutorWhatIf:
         assert result["spot"] == 110.0
         assert result["strike"] == 100.0
 
+    def test_execute_scenario_alias(self):
+        """Test finance-native SCENARIO execution."""
+        class MockKANStore:
+            def query_vol_surface(self, regime_features, log_moneyness, time_to_expiry, normalize=True):
+                return 0.2
+
+        dsl = "SCENARIO asset=silver target=STRESS metrics=[price,delta]"
+        node = parse_dsl(dsl)
+
+        context = ExecutionContext(kan_store=MockKANStore())
+        executor = DSLExecutor(context=context)
+        result = executor.execute(node)
+
+        assert result["query_type"] == "WHAT_IF"
+        assert result["to_regime"] == "STRESS"
+
 
 class TestExecutorExplain:
     """Test EXPLAIN query execution."""
@@ -304,6 +332,49 @@ class TestExecutorSurface:
         executor = DSLExecutor()
 
         with pytest.raises(RuntimeError, match="KANKnowledgeStore required"):
+            executor.execute(node)
+
+
+class TestExecutorOutlook:
+    """Test OUTLOOK query execution."""
+
+    def test_execute_outlook_with_mock_engine(self):
+        """Test OUTLOOK execution with mock SPIKAN engine."""
+        class MockSPIKANEngine:
+            def outlook(self, asset, horizon, regime="current", regime_features=None):
+                assert regime_features is not None
+                return {
+                    "query_type": "OUTLOOK",
+                    "asset": asset,
+                    "horizon": horizon,
+                    "horizon_days": 10,
+                    "regime": regime,
+                    "direction": "lean bullish",
+                    "outlook_score": 22.5,
+                    "confidence": 0.41,
+                    "shock_risk": "MODERATE",
+                    "flow_regime": "TRENDING",
+                }
+
+        dsl = "OUTLOOK asset=silver horizon=10d backdrop=STRESS"
+        node = parse_dsl(dsl)
+        context = ExecutionContext(spikan_engine=MockSPIKANEngine())
+        executor = DSLExecutor(context=context)
+
+        result = executor.execute(node)
+
+        assert result["query_type"] == "OUTLOOK"
+        assert result["asset"] == "silver"
+        assert result["regime"] == "STRESS"
+        assert result["direction"] == "lean bullish"
+
+    def test_execute_outlook_without_engine(self):
+        """Test OUTLOOK error without SPIKAN engine."""
+        dsl = "OUTLOOK asset=silver horizon=10d backdrop=STRESS"
+        node = parse_dsl(dsl)
+        executor = DSLExecutor()
+
+        with pytest.raises(RuntimeError, match="SPIKAN outlook engine required"):
             executor.execute(node)
 
 

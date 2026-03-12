@@ -13,6 +13,7 @@ from src.options.dsl.ast_nodes import (
     WhatIfQuery,
     ExplainQuery,
     SurfaceQuery,
+    OutlookQuery,
 )
 
 
@@ -86,6 +87,20 @@ class TestPriceQueryParsing:
         node3 = parse_dsl(dsl3)
         assert abs(node3.time_to_expiry - 180 / 365.0) < 1e-6
 
+    def test_quote_alias_with_finance_params(self):
+        """Test finance-native QUOTE alias and percentage parsing."""
+        dsl = "QUOTE call spot=100 strike=105 expiry=30d vol=20% rate=5% dividend=2%"
+        node = parse_dsl(dsl)
+
+        assert isinstance(node, PriceQuery)
+        assert node.option_type == "call"
+        assert node.spot_price == 100.0
+        assert node.strike_price == 105.0
+        assert abs(node.time_to_expiry - 30 / 365.0) < 1e-6
+        assert abs(node.volatility - 0.20) < 1e-6
+        assert abs(node.risk_free_rate - 0.05) < 1e-6
+        assert abs(node.dividend_yield - 0.02) < 1e-6
+
 
 class TestRegimeQueryParsing:
     """Test parsing REGIME queries."""
@@ -118,6 +133,15 @@ class TestRegimeQueryParsing:
         assert node.to_regime == "RECOVERY"
         assert abs(node.horizon - 14 / 365.0) < 1e-6
 
+    def test_regime_odds_alias(self):
+        """Test REGIME odds alias with toward parameter."""
+        dsl = "REGIME odds from=STABLE toward=STRESS horizon=10d"
+        node = parse_dsl(dsl)
+
+        assert isinstance(node, RegimeProbQuery)
+        assert node.from_regime == "STABLE"
+        assert node.to_regime == "STRESS"
+
 
 class TestCovarianceQueryParsing:
     """Test parsing COVARIANCE queries."""
@@ -147,6 +171,15 @@ class TestCovarianceQueryParsing:
 
         assert isinstance(node, CovarianceQuery)
         assert node.assets == ["gold", "dxy"]
+
+    def test_risk_alias(self):
+        """Test finance-native RISK alias."""
+        dsl = "RISK basket=[silver,gold,dxy] backdrop=STRESS lookback=60d"
+        node = parse_dsl(dsl)
+
+        assert isinstance(node, CovarianceQuery)
+        assert node.assets == ["silver", "gold", "dxy"]
+        assert node.regime == "STRESS"
 
 
 class TestTransitionQueryParsing:
@@ -200,6 +233,16 @@ class TestWhatIfQueryParsing:
         node = parse_dsl(dsl)
 
         assert len(node.show) == 6
+
+    def test_scenario_alias(self):
+        """Test finance-native SCENARIO alias."""
+        dsl = "SCENARIO asset=silver target=STRESS metrics=[delta,vega,price]"
+        node = parse_dsl(dsl)
+
+        assert isinstance(node, WhatIfQuery)
+        assert node.to_regime == "STRESS"
+        assert node.asset == "silver"
+        assert node.show == ["delta", "vega", "price"]
 
 
 class TestExplainQueryParsing:
@@ -262,6 +305,20 @@ class TestSurfaceQueryParsing:
 
         assert isinstance(node, SurfaceQuery)
         assert node.strikes == [1.0]
+
+
+class TestOutlookQueryParsing:
+    """Test parsing OUTLOOK queries."""
+
+    def test_outlook_query(self):
+        """Test OUTLOOK query."""
+        dsl = "OUTLOOK asset=silver horizon=10d backdrop=STRESS"
+        node = parse_dsl(dsl)
+
+        assert isinstance(node, OutlookQuery)
+        assert node.asset == "silver"
+        assert node.regime == "STRESS"
+        assert abs(node.horizon - 10 / 365.0) < 1e-6
 
 
 class TestParsingErrors:
