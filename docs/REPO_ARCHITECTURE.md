@@ -39,8 +39,12 @@ The codebase is organized more like a research platform than a library package. 
 
 - `configs/`
   - Universe definitions, regime settings, and options runtime configuration.
+- `scripts/options/`
+  - Stable options entry points such as the REPL, QA agent, and KAN training.
+- `scripts/silver/`
+  - Stable silver-pipeline runners, reports, validation, and training utilities.
 - `scripts/`
-  - Research runners, reports, training utilities, demos, the REPL, and the Codex QA agent.
+  - Compatibility wrappers that preserve existing command paths.
 - `scripts/research/`
   - Experimental narrative, OT, and notebook-integration scripts separated from the main operational entry points.
 - `tests/`

@@ -48,6 +48,10 @@ These systems are related rather than separate: the options tooling depends on m
   - Full options stack: DSL, pricing, KAN store, LLM translation, and outlook tooling.
 - `src/validation/`
   - Data quality checks and out-of-sample validation helpers.
+- `scripts/options/`
+  - Stable options entry points.
+- `scripts/silver/`
+  - Stable silver-pipeline entry points.
 - `scripts/research/`
   - Exploratory scripts and one-off experiments that should not be treated as stable entry points.
 
