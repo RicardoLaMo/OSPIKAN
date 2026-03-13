@@ -79,6 +79,12 @@ Core documents:
 - `PRELIMINARY_EVIDENCE_BINDING.md`
   - current repo evidence that can already be cited in the manuscript
   - distinguishes subsystem results from still-missing paper benchmark outputs
+- `BENCHMARK_ARTIFACT_MANIFEST.md`
+  - required `output/paper/` artifact structure for protocol, quantitative, and integration studies
+  - promotion rules for turning benchmark outputs into manuscript claims
+- `MANUSCRIPT_BINDING_MAP.md`
+  - stable mapping from manuscript items to exact docs and benchmark artifact paths
+  - review aid for evidence-backed text changes
 
 Working thesis:
 

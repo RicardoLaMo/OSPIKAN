@@ -240,6 +240,12 @@ proxy, one quote frequency, one liquid tenor band, and one near-ATM plus one OTM
 bucket. This narrow slice is enough to validate the full architecture without
 overscoping the data problem.
 
+The manuscript should therefore be filled from three benchmark artifact lanes:
+
+- protocol artifacts under `output/paper/protocol/`
+- quantitative artifacts under `output/paper/quant/`
+- integration-cost artifacts under `output/paper/integration_cost/`
+
 ## 8. Current Repo Status
 
 At the time of drafting, the repo is strongest at the component level rather
@@ -305,6 +311,44 @@ repo evidence. This is deliberate. The manuscript should only promote metrics
 into the main claims once they are produced by the benchmark harnesses defined
 in the planning documents.
 
+### Protocol Metrics Table Stub
+
+| Metric | Split | Current Value |
+| --- | --- | --- |
+| valid DSL rate | benchmark split | `[PROTOCOL_VALID_DSL_RATE]` |
+| one-shot executable rate | benchmark split | `[PROTOCOL_ONE_SHOT_EXEC_RATE]` |
+| final executable rate | benchmark split | `[PROTOCOL_FINAL_EXEC_RATE]` |
+| semantic match rate | benchmark split | `[PROTOCOL_SEMANTIC_MATCH_RATE]` |
+| retry burden | benchmark split | `[PROTOCOL_RETRY_BURDEN]` |
+
+Source target:
+
+- `output/paper/protocol/metrics.csv`
+
+### Quantitative Leaderboard Stub
+
+| Backend | Task | Primary Metric | Calibration | Stress Slice |
+| --- | --- | --- | --- | --- |
+| SPIKAN | shock or regime task | `[SPIKAN_PRIMARY_TASK_METRIC]` | `[SPIKAN_CALIBRATION_METRIC]` | `[SPIKAN_STRESS_SLICE_METRIC]` |
+| Markov or HMM baseline | same task | `[BASELINE_PRIMARY_TASK_METRIC]` | `[BASELINE_CALIBRATION_METRIC]` | `[BASELINE_STRESS_SLICE_METRIC]` |
+| tabular baseline | same task | `[TABULAR_PRIMARY_TASK_METRIC]` | `[TABULAR_CALIBRATION_METRIC]` | `[TABULAR_STRESS_SLICE_METRIC]` |
+
+Source target:
+
+- `output/paper/quant/leaderboard.csv`
+- `output/paper/quant/stress_slices.csv`
+
+### Integration-Cost Table Stub
+
+| Integration Style | Adapter LOC | Files Touched | Custom Branches | Time To First Benchmark |
+| --- | --- | --- | --- | --- |
+| DSL-mediated shared contract | `[INTEGRATION_COST_ADAPTER_LOC]` | `[INTEGRATION_COST_FILES_TOUCHED]` | `[INTEGRATION_COST_BRANCH_COUNT]` | `[INTEGRATION_COST_TIME_TO_FIRST]` |
+| backend-specific glue | `[GLUE_ADAPTER_LOC]` | `[GLUE_FILES_TOUCHED]` | `[GLUE_BRANCH_COUNT]` | `[GLUE_TIME_TO_FIRST]` |
+
+Source target:
+
+- `output/paper/integration_cost/summary.csv`
+
 There are two possible outcome patterns. In the stronger outcome, SPIKAN
 outperforms simpler baselines on at least one primary task, remains calibrated
 through stress periods, and the router architecture reduces onboarding burden. In
@@ -314,7 +358,27 @@ rather than decisively. In that case, the paper should position SPIKAN as a
 plausible specialist backend within a stronger interoperability architecture,
 rather than as the uniquely best model.
 
-## 11. Discussion
+## 11. Artifact Binding And Reproducibility
+
+The paper should treat benchmark artifacts the same way the system treats
+backend execution: through explicit contracts. All evidence-backed claims should
+resolve to versioned outputs under `output/paper/`, with manifests that record
+the generating commit, split policy, backend ids, and source data references.
+
+The binding process should follow three documents together:
+
+- `BENCHMARK_ARTIFACT_MANIFEST.md`
+- `MANUSCRIPT_BINDING_MAP.md`
+- `PAPER_AUTHORING_PROCESS.md`
+
+This gives the manuscript a stable fill path:
+
+1. produce benchmark artifacts
+2. register them in the artifact manifest
+3. bind them to figures, tables, and placeholders through the binding map
+4. upgrade the prose only after the evidence exists
+
+## 12. Discussion
 
 The main contribution of this work is architectural. Finance is a useful domain
 because it makes the tradeoffs visible: free-form language is not safe enough,
@@ -337,7 +401,7 @@ than a completed empirical result. That limitation is acceptable as long as the
 paper is honest about which parts are implemented, which parts are benchmarked,
 and which parts are still placeholders awaiting execution.
 
-## 12. Conclusion
+## 13. Conclusion
 
 We have outlined a paper architecture in which language functions as a protocol
 layer between humans and specialist financial models. In the proposed system,
@@ -358,12 +422,28 @@ evidence.
 These items should be replaced by benchmark outputs as implementation proceeds:
 
 - `[PROTOCOL_VALID_DSL_RATE]`
+- `[PROTOCOL_ONE_SHOT_EXEC_RATE]`
+- `[PROTOCOL_FINAL_EXEC_RATE]`
 - `[PROTOCOL_SEMANTIC_MATCH_RATE]`
+- `[PROTOCOL_RETRY_BURDEN]`
 - `[SPIKAN_PRIMARY_TASK_METRIC]`
+- `[SPIKAN_CALIBRATION_METRIC]`
 - `[SPIKAN_STRESS_SLICE_METRIC]`
+- `[BASELINE_PRIMARY_TASK_METRIC]`
+- `[BASELINE_CALIBRATION_METRIC]`
+- `[BASELINE_STRESS_SLICE_METRIC]`
+- `[TABULAR_PRIMARY_TASK_METRIC]`
+- `[TABULAR_CALIBRATION_METRIC]`
+- `[TABULAR_STRESS_SLICE_METRIC]`
 - `[ABLATION_NO_GEOMETRY_DELTA]`
 - `[INTEGRATION_COST_ADAPTER_LOC]`
 - `[INTEGRATION_COST_FILES_TOUCHED]`
+- `[INTEGRATION_COST_BRANCH_COUNT]`
+- `[INTEGRATION_COST_TIME_TO_FIRST]`
+- `[GLUE_ADAPTER_LOC]`
+- `[GLUE_FILES_TOUCHED]`
+- `[GLUE_BRANCH_COUNT]`
+- `[GLUE_TIME_TO_FIRST]`
 
 ## Appendix B. Minimal Figure Checklist
 
@@ -374,3 +454,11 @@ The draft expects the following final figures:
 3. protocol trace figure
 4. quantitative comparison figure
 5. integration-cost figure
+
+## Appendix C. Manuscript Binding Inputs
+
+Use these sources when converting the draft into an evidence-bound manuscript:
+
+- `BENCHMARK_ARTIFACT_MANIFEST.md`
+- `MANUSCRIPT_BINDING_MAP.md`
+- `PRELIMINARY_EVIDENCE_BINDING.md`

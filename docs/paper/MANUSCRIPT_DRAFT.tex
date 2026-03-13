@@ -216,6 +216,13 @@ to simpler baselines under equal data and time-split rules. The integration-cost
 study tests whether the DSL-router architecture reduces backend onboarding and
 workflow complexity relative to backend-specific glue.
 
+The manuscript should therefore be filled from three benchmark artifact lanes:
+\begin{itemize}[leftmargin=*]
+  \item protocol artifacts under \texttt{output/paper/protocol/},
+  \item quantitative artifacts under \texttt{output/paper/quant/},
+  \item integration-cost artifacts under \texttt{output/paper/integration\_cost/}.
+\end{itemize}
+
 \begin{table}[H]
   \centering
   \caption{Primary quantitative benchmark table placeholder. Replace with the
@@ -240,16 +247,76 @@ table for quantitative results, one ablation table, one integration-cost table,
 and a figure set covering architecture, protocol trace, state timeline,
 quantitative comparison, and integration cost.
 
+\begin{table}[H]
+  \centering
+  \caption{Protocol benchmark table placeholder. Replace with benchmark-backed
+  values from \texttt{output/paper/protocol/metrics.csv}.}
+  \label{tab:protocol}
+  \begin{tabular}{p{0.34\linewidth} p{0.18\linewidth} p{0.26\linewidth}}
+    \toprule
+    Metric & Split & Current Value \\
+    \midrule
+    Valid DSL rate & benchmark split & \texttt{[PROTOCOL\_VALID\_DSL\_RATE]} \\
+    One-shot executable rate & benchmark split & \texttt{[PROTOCOL\_ONE\_SHOT\_EXEC\_RATE]} \\
+    Final executable rate & benchmark split & \texttt{[PROTOCOL\_FINAL\_EXEC\_RATE]} \\
+    Semantic match rate & benchmark split & \texttt{[PROTOCOL\_SEMANTIC\_MATCH\_RATE]} \\
+    Retry burden & benchmark split & \texttt{[PROTOCOL\_RETRY\_BURDEN]} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 Current manuscript placeholders to replace during evidence binding:
 \begin{itemize}[leftmargin=*]
   \item \texttt{[PROTOCOL\_VALID\_DSL\_RATE]}
+  \item \texttt{[PROTOCOL\_ONE\_SHOT\_EXEC\_RATE]}
+  \item \texttt{[PROTOCOL\_FINAL\_EXEC\_RATE]}
   \item \texttt{[PROTOCOL\_SEMANTIC\_MATCH\_RATE]}
+  \item \texttt{[PROTOCOL\_RETRY\_BURDEN]}
   \item \texttt{[SPIKAN\_PRIMARY\_TASK\_METRIC]}
+  \item \texttt{[SPIKAN\_CALIBRATION\_METRIC]}
   \item \texttt{[SPIKAN\_STRESS\_SLICE\_METRIC]}
   \item \texttt{[ABLATION\_NO\_GEOMETRY\_DELTA]}
   \item \texttt{[INTEGRATION\_COST\_ADAPTER\_LOC]}
   \item \texttt{[INTEGRATION\_COST\_FILES\_TOUCHED]}
 \end{itemize}
+
+\begin{table}[H]
+  \centering
+  \caption{Integration-cost table placeholder. Replace with benchmark-backed
+  values from \texttt{output/paper/integration\_cost/summary.csv}.}
+  \label{tab:integration-cost}
+  \begin{tabular}{p{0.28\linewidth} p{0.16\linewidth} p{0.16\linewidth} p{0.16\linewidth} p{0.16\linewidth}}
+    \toprule
+    Integration Style & Adapter LOC & Files Touched & Custom Branches & Time To First Benchmark \\
+    \midrule
+    DSL-mediated shared contract & \texttt{[INTEGRATION\_COST\_ADAPTER\_LOC]} & \texttt{[INTEGRATION\_COST\_FILES\_TOUCHED]} & \texttt{[INTEGRATION\_COST\_BRANCH\_COUNT]} & \texttt{[INTEGRATION\_COST\_TIME\_TO\_FIRST]} \\
+    Backend-specific glue & \texttt{[GLUE\_ADAPTER\_LOC]} & \texttt{[GLUE\_FILES\_TOUCHED]} & \texttt{[GLUE\_BRANCH\_COUNT]} & \texttt{[GLUE\_TIME\_TO\_FIRST]} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Artifact Binding And Reproducibility}
+
+The paper should treat benchmark artifacts the same way the system treats
+backend execution: through explicit contracts. All evidence-backed claims should
+resolve to versioned outputs under \texttt{output/paper/}, with manifests that
+record the generating commit, split policy, backend ids, and source data
+references.
+
+The binding process should follow three documents together:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{BENCHMARK\_ARTIFACT\_MANIFEST.md}
+  \item \texttt{MANUSCRIPT\_BINDING\_MAP.md}
+  \item \texttt{PAPER\_AUTHORING\_PROCESS.md}
+\end{itemize}
+
+This gives the manuscript a stable fill path:
+\begin{enumerate}[leftmargin=*]
+  \item produce benchmark artifacts,
+  \item register them in the artifact manifest,
+  \item bind them to figures, tables, and placeholders through the binding map,
+  \item upgrade the prose only after the evidence exists.
+\end{enumerate}
 
 \section{Preliminary Repo Evidence}
 
@@ -322,6 +389,29 @@ the surrounding contracts and benchmarks make the broader architecture testable.
 
 \appendix
 
+\section{Current Evidence Placeholders}
+
+These items should be replaced by benchmark outputs as implementation proceeds:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{[PROTOCOL\_VALID\_DSL\_RATE]}
+  \item \texttt{[PROTOCOL\_ONE\_SHOT\_EXEC\_RATE]}
+  \item \texttt{[PROTOCOL\_FINAL\_EXEC\_RATE]}
+  \item \texttt{[PROTOCOL\_SEMANTIC\_MATCH\_RATE]}
+  \item \texttt{[PROTOCOL\_RETRY\_BURDEN]}
+  \item \texttt{[SPIKAN\_PRIMARY\_TASK\_METRIC]}
+  \item \texttt{[SPIKAN\_CALIBRATION\_METRIC]}
+  \item \texttt{[SPIKAN\_STRESS\_SLICE\_METRIC]}
+  \item \texttt{[ABLATION\_NO\_GEOMETRY\_DELTA]}
+  \item \texttt{[INTEGRATION\_COST\_ADAPTER\_LOC]}
+  \item \texttt{[INTEGRATION\_COST\_FILES\_TOUCHED]}
+  \item \texttt{[INTEGRATION\_COST\_BRANCH\_COUNT]}
+  \item \texttt{[INTEGRATION\_COST\_TIME\_TO\_FIRST]}
+  \item \texttt{[GLUE\_ADAPTER\_LOC]}
+  \item \texttt{[GLUE\_FILES\_TOUCHED]}
+  \item \texttt{[GLUE\_BRANCH\_COUNT]}
+  \item \texttt{[GLUE\_TIME\_TO\_FIRST]}
+\end{itemize}
+
 \section{Minimal Figure Checklist}
 
 The draft expects the following final figures:
@@ -332,5 +422,14 @@ The draft expects the following final figures:
   \item quantitative comparison figure,
   \item integration-cost figure.
 \end{enumerate}
+
+\section{Manuscript Binding Inputs}
+
+Use these sources when converting the draft into an evidence-bound manuscript:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{BENCHMARK\_ARTIFACT\_MANIFEST.md}
+  \item \texttt{MANUSCRIPT\_BINDING\_MAP.md}
+  \item \texttt{PRELIMINARY\_EVIDENCE\_BINDING.md}
+\end{itemize}
 
 \end{document}
