@@ -1,0 +1,33 @@
+version: 1
+
+defaults:
+  provider: yfinance
+  start_date: "2015-01-01"
+  end_date: null
+  interval: 1d
+
+# Minimal real-data universe for paper benchmark runs.
+# Keeps the first benchmark fast while preserving:
+# - silver target
+# - precious-metals context
+# - macro / rates / equity risk context
+universe:
+  silver:
+    - SI=F
+    - SLV
+
+  cross_metals:
+    - GC=F
+
+  macro:
+    - DX-Y.NYB
+    - ^TNX
+    - ^VIX
+    - SPY
+    - QQQ
+
+outputs:
+  raw_dir: data/raw
+  interim_dir: data/interim
+  processed_dir: data/processed
+  metadata_dir: data/raw/_runs
