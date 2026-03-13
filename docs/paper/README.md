@@ -32,6 +32,12 @@ Core documents:
 - `OPTION_DATA_MIGRATION.md`
   - move from synthetic-only option training assumptions to real-data option snapshots
   - benchmark join design with the market-state contract
+- `BACKEND_INTERFACE_SPEC.md`
+  - common specialist-backend interface for SPIKAN and comparison models
+  - output schema and capability model for router-based execution
+- `ROUTER_MIGRATION.md`
+  - migration from the current `ExecutionContext` + hardcoded executor path
+  - target backend registry, routing rules, and compatibility gates
 
 Working thesis:
 
