@@ -262,7 +262,39 @@ claims around protocol quality and integration cost are not yet backed by
 benchmark artifacts. The planning package in `docs/paper/` is designed to close
 those gaps in a controlled order.
 
-## 9. Expected Results Structure
+## 9. Preliminary Repo Evidence
+
+Although the full paper benchmark program is not complete yet, the repo already
+contains two classes of evidence that are stable enough to cite as preliminary
+results.
+
+First, the silver and geometry pipeline has existing walk-forward results from
+the thesis track. The current validated summary reports 48 walk-forward folds,
+3,213 deduplicated out-of-sample predictions, and the following regime
+classification accuracies: BASE 64.50%, MACRO 66.67%, and SECTIONAL 65.43%. The
+same summary reports stable-regime Sharpe ratios of 2.354 for BASE, 2.764 for
+MACRO, and 2.414 for SECTIONAL. These are not yet the main quantitative results
+for the LLM+SPIKAN paper, but they show that the repo already has a credible
+out-of-sample validation culture and a non-trivial state-representation baseline
+on real historical data.
+
+Second, the options and protocol subsystems already have measurable engineering
+maturity. The implementation summary currently reports 205 passing tests across
+DSL, KAN store, executor, LLM integration, training, and high-fidelity geometry
+work. Within that package, the high-fidelity SPIKAN path reports a geometric
+correlation of 0.9632 between SPIKAN latent activations and Clifford Algebra
+rotor magnitudes, as well as a large reduction in PDE residual variance from
+125,894 to 1.5882. These results should be presented as subsystem-level evidence
+rather than as final paper benchmark outputs, but they do support the claim that
+the backend and protocol stack are already more than a conceptual sketch.
+
+The manuscript therefore distinguishes three evidence tiers:
+
+- implemented subsystem evidence already present in the repo,
+- benchmark evidence still required for the paper claim,
+- future option-data and integration-cost evidence not yet bound.
+
+## 10. Expected Results Structure
 
 The final paper should report one table for protocol metrics, one leaderboard
 table for quantitative results, one ablation table, one integration-cost table,
@@ -282,7 +314,7 @@ rather than decisively. In that case, the paper should position SPIKAN as a
 plausible specialist backend within a stronger interoperability architecture,
 rather than as the uniquely best model.
 
-## 10. Discussion
+## 11. Discussion
 
 The main contribution of this work is architectural. Finance is a useful domain
 because it makes the tradeoffs visible: free-form language is not safe enough,
@@ -305,7 +337,7 @@ than a completed empirical result. That limitation is acceptable as long as the
 paper is honest about which parts are implemented, which parts are benchmarked,
 and which parts are still placeholders awaiting execution.
 
-## 11. Conclusion
+## 12. Conclusion
 
 We have outlined a paper architecture in which language functions as a protocol
 layer between humans and specialist financial models. In the proposed system,

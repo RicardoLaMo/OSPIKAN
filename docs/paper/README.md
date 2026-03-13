@@ -76,6 +76,9 @@ Core documents:
   - artifact policy for draft PDFs and generated paper outputs
 - `FIGURE_TABLE_WORKFLOW.md`
   - process for creating, naming, and binding figures and tables to benchmark artifacts
+- `PRELIMINARY_EVIDENCE_BINDING.md`
+  - current repo evidence that can already be cited in the manuscript
+  - distinguishes subsystem results from still-missing paper benchmark outputs
 
 Working thesis:
 

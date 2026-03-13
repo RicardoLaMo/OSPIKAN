@@ -251,6 +251,52 @@ Current manuscript placeholders to replace during evidence binding:
   \item \texttt{[INTEGRATION\_COST\_FILES\_TOUCHED]}
 \end{itemize}
 
+\section{Preliminary Repo Evidence}
+
+Although the full paper benchmark program is not complete yet, the repository
+already contains two classes of evidence that are stable enough to cite as
+preliminary results.
+
+First, the silver and geometry pipeline has existing walk-forward results from
+the thesis track. The current validated summary reports 48 walk-forward folds,
+3{,}213 deduplicated out-of-sample predictions, and regime classification
+accuracies of 64.50\% for BASE, 66.67\% for MACRO, and 65.43\% for SECTIONAL.
+The same summary reports stable-regime Sharpe ratios of 2.354 for BASE, 2.764
+for MACRO, and 2.414 for SECTIONAL. These are not yet the main quantitative
+results for the LLM+SPIKAN paper, but they show that the repository already has
+a credible out-of-sample validation culture and a non-trivial state
+representation baseline on real historical data.
+
+Second, the options and protocol subsystems already have measurable engineering
+maturity. The implementation summary currently reports 205 passing tests across
+DSL, KAN store, executor, LLM integration, training, and high-fidelity geometry
+work. Within that package, the high-fidelity SPIKAN path reports a geometric
+correlation of 0.9632 between SPIKAN latent activations and Clifford Algebra
+rotor magnitudes, as well as a large reduction in PDE residual variance from
+125{,}894 to 1.5882. These results should be presented as subsystem-level
+evidence rather than as final paper benchmark outputs, but they do support the
+claim that the backend and protocol stack are already more than a conceptual
+sketch.
+
+\begin{table}[H]
+  \centering
+  \caption{Preliminary repository evidence already available before the new
+  benchmark program is executed. These values are subsystem or prior-thesis
+  evidence and should not be confused with the final paper benchmark outputs.}
+  \label{tab:preliminary-evidence}
+  \begin{tabular}{p{0.28\linewidth} p{0.22\linewidth} p{0.34\linewidth}}
+    \toprule
+    Evidence Source & Current Value & Interpretation \\
+    \midrule
+    Walk-forward silver validation & BASE 64.50\%, MACRO 66.67\%, SECTIONAL 65.43\% & Existing real-data state baseline from thesis track \\
+    Stable-regime Sharpe & 2.354, 2.764, 2.414 & Economic significance for regime-conditioned signals \\
+    Options/protocol test maturity & 205 passing tests & Engineering maturity of DSL, KAN, executor, and LLM stack \\
+    High-fidelity SPIKAN geometry alignment & $R_{GA}=0.9632$ & Strong subsystem alignment between SPIKAN latent geometry and rotor signal \\
+    PDE residual stabilization & 125{,}894 $\rightarrow$ 1.5882 & Evidence of backend training stabilization under the current high-fidelity path \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \section{Discussion}
 
 The main contribution of this work is architectural. Finance is a useful domain
