@@ -7,7 +7,7 @@ treasury yields, and other macro signals interact with geometric regime measures
 (Ricci curvature, MST stress).
 
 Usage:
-    python scripts/explore_macro_geometry.py
+    python scripts/research/explore_macro_geometry.py
 
 Author: Enhanced silver analysis framework
 Date: 2026-01-12
@@ -19,8 +19,9 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 # Configuration
-FEATURES_FILE = "data/processed/silver_features_20260112-205924_5c4f0d4fec.parquet"
-OUTPUT_DIR = Path("reports/silver/macro_geometry_analysis")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+FEATURES_FILE = PROJECT_ROOT / "data/processed/silver_features_20260112-205924_5c4f0d4fec.parquet"
+OUTPUT_DIR = PROJECT_ROOT / "reports/silver/macro_geometry_analysis"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 def load_features():

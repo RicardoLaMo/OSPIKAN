@@ -41,6 +41,8 @@ The codebase is organized more like a research platform than a library package. 
   - Universe definitions, regime settings, and options runtime configuration.
 - `scripts/`
   - Research runners, reports, training utilities, demos, the REPL, and the Codex QA agent.
+- `scripts/research/`
+  - Experimental narrative, OT, and notebook-integration scripts separated from the main operational entry points.
 - `tests/`
   - Unit and integration coverage across geometry, regimes, pipeline, DSL, pricing, and model layers.
 - `docs/`

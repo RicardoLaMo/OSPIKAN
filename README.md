@@ -26,6 +26,7 @@ OSPIKAN is a research and engineering repository for market modeling with geomet
 - `src/options/`: DSL, pricing, KAN store, LLM translation, and outlook tooling
 - `src/validation/`: data-quality and out-of-sample evaluation helpers
 - `scripts/`: one-shot runners, demos, reports, training, REPL, and QA tooling
+- `scripts/research/`: exploratory narrative, OT, and notebook-integration scripts
 - `tests/`: unit and integration coverage
 - `docs/guides/`: quick starts and operator-facing how-to material
 - `docs/project_status/`: implementation snapshots and milestone summaries
