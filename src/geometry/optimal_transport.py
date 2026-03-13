@@ -7,7 +7,7 @@ if predicted geometric states are isometrically consistent with historical groun
 
 import numpy as np
 import ot
-from typing import Tuple, Optional
+from typing import Dict, Tuple
 
 
 class GromovWassersteinValidator:
@@ -88,3 +88,27 @@ class GromovWassersteinValidator:
         dist = self.compute_relational_distance(prediction, historical_reference)
         is_valid = dist < threshold
         return is_valid, dist
+
+
+class ManifoldTensionValidator:
+    """Quantifies manifold tension using both level and structural OT metrics."""
+
+    def __init__(self, epsilon: float = 0.05, max_iter: int = 50):
+        self.gw_validator = GromovWassersteinValidator(epsilon=epsilon, max_iter=max_iter)
+
+    def compute_structural_tension(self, source: np.ndarray, target: np.ndarray) -> float:
+        """Gromov-Wasserstein distance over internal geometry."""
+        return self.gw_validator.compute_relational_distance(source, target)
+
+    def compute_level_tension(self, source: np.ndarray, target: np.ndarray) -> float:
+        """Standard Wasserstein-2 cost over absolute coordinates."""
+        p = ot.unif(len(source))
+        q = ot.unif(len(target))
+        cost_matrix = ot.dist(source, target, metric="sqeuclidean")
+        return float(ot.emd2(p, q, cost_matrix))
+
+    def compute_full_tension_report(self, source: np.ndarray, target: np.ndarray) -> Dict[str, float]:
+        return {
+            "structural_tension_gw": self.compute_structural_tension(source, target),
+            "level_tension_w2": self.compute_level_tension(source, target),
+        }
