@@ -62,6 +62,12 @@ Core documents:
   - end-to-end milestone schedule, dependencies, and merge order
 - `EXECUTION_SEQUENCE.md`
   - exact branch execution order from planning into implementation and evidence collection
+- `MANUSCRIPT_DRAFT.md`
+  - first full paper draft in prose with evidence placeholders
+  - aligned to the current repo and benchmark plan
+- `PAPER_AUTHORING_PROCESS.md`
+  - writing workflow for turning benchmark artifacts into a submission-ready paper
+  - rules for replacing placeholders and tightening claims
 
 Working thesis:
 
