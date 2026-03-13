@@ -13,6 +13,13 @@ Core documents:
   - real-data plan
   - model comparison matrix
   - evidence required to prove or falsify the claim
+- `IMPLEMENTATION_ROADMAP.md`
+  - branch-by-branch execution sequence
+  - module touch points in the current repo
+  - acceptance gates for each phase
+- `EVIDENCE_MATRIX.md`
+  - exact claim-to-evidence mapping
+  - required tables, figures, baselines, and failure criteria
 
 Working thesis:
 
