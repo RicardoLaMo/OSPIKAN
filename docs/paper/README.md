@@ -50,6 +50,12 @@ Core documents:
 - `SPIKAN_BASELINE_MIGRATION.md`
   - migration from standalone SPIKAN training to benchmark-parity evaluation
   - baseline set, fairness rules, and paper-ready outputs
+- `INTEGRATION_COST_STUDY.md`
+  - measurement design for backend onboarding and workflow complexity
+  - direct comparison between DSL-mediated and backend-specific integration
+- `INTEGRATION_COST_MIGRATION.md`
+  - how to instrument repo changes so the systems claim becomes measurable
+  - branch, diff, and adapter-level evidence plan
 
 Working thesis:
 
