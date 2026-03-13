@@ -56,6 +56,12 @@ Core documents:
 - `INTEGRATION_COST_MIGRATION.md`
   - how to instrument repo changes so the systems claim becomes measurable
   - branch, diff, and adapter-level evidence plan
+- `PAPER_PACKAGE_PLAN.md`
+  - final paper structure, figure/table map, and claim packaging
+- `MILESTONE_REGISTER.md`
+  - end-to-end milestone schedule, dependencies, and merge order
+- `EXECUTION_SEQUENCE.md`
+  - exact branch execution order from planning into implementation and evidence collection
 
 Working thesis:
 
@@ -71,3 +77,5 @@ Planning constraints taken from the current repo:
 - The main gap is end-to-end integration and proof, not raw component count.
 - The immediate objective is to reconstruct the architecture around explicit
   interfaces and measurable experiments, not to start another broad refactor.
+- The final planning target is one coherent path from abstract -> contracts ->
+  benchmarks -> paper package, all under versioned git branches.
