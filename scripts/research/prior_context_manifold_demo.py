@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 # Ensure project root is in path
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.options.kan_store.store import KANKnowledgeStore

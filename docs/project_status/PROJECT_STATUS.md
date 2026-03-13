@@ -314,7 +314,7 @@ Delta (current): 0.54 → (target): 0.61 [+0.07]
 
 - **IMPLEMENTATION_PROGRESS.md** - Full implementation plan and status
 - **PHASE_C_SUMMARY.md** - Detailed Phase C implementation notes
-- **QUICK_START_PHASE_C.md** - DSL usage examples and reference
+- **../guides/QUICK_START_PHASE_C.md** - DSL usage examples and reference
 - **PROJECT_STATUS.md** - This file
 
 ---
@@ -326,4 +326,3 @@ Delta (current): 0.54 → (target): 0.61 [+0.07]
 ⏳ **Ready for Production**: Phase E (~2 hours)
 
 The system is production-ready for programmatic DSL usage and fully tested. Next: natural language interface and interactive tools.
-

@@ -15,7 +15,8 @@ from datetime import datetime
 from pathlib import Path
 
 # Paths
-NOTEBOOK_PATH = Path("/Users/weichengliu/Library/CloudStorage/GoogleDrive-the.richard.liu@gmail.com/My Drive/Thesis/investment/notebooks/multi_asset_regime_analysis.ipynb")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+NOTEBOOK_PATH = PROJECT_ROOT / "notebooks/multi_asset_regime_analysis.ipynb"
 BACKUP_PATH = NOTEBOOK_PATH.parent / f"multi_asset_regime_analysis_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.ipynb"
 
 

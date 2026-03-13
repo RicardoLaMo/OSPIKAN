@@ -4,6 +4,9 @@
 
 This directory contains comprehensive documentation for the Options Pricing DSL system across all phases (A–F).
 
+For repository-level structure, see **[REPO_ARCHITECTURE.md](REPO_ARCHITECTURE.md)**.
+For repo-wide quick starts and non-DSL operational guides, see **[guides/](guides/)**.
+
 ---
 
 ## Phase F: UX Redesign + Codex CLI Agent (LATEST)

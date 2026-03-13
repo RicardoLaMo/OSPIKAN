@@ -361,13 +361,13 @@ reports/silver/
 
 | File | Purpose | Pages |
 |------|---------|-------|
-| `THESIS_DELIVERABLES.md` | **THIS FILE** - Complete summary | 20+ |
+| `docs/thesis/THESIS_DELIVERABLES.md` | **THIS FILE** - Complete summary | 20+ |
 | `PHASE_2_3_COMPLETE.md` | Phase 2 & 3 implementation summary | 25+ |
 | `INTEGRATION_SUMMARY.md` | Phase 1 macro features integration | 15+ |
 | `docs/PHASE_2_3_IMPLEMENTATION_SUMMARY.md` | Technical details | 30+ |
 | `docs/MACRO_FEATURES_GUIDE.md` | Treasury, credit, ratios explained | 40+ |
 | `docs/CROSS_VALIDATION_SUMMARY.md` | Validation methodology | 10+ |
-| `QUICK_REFERENCE.md` | Command cheat sheet | 10+ |
+| `docs/guides/SILVER_QUICK_REFERENCE.md` | Command cheat sheet | 10+ |
 | `docs/SILVER_GEOMETRIC_ENHANCEMENT_PLAN.md` | Original 5-phase roadmap | 50+ |
 
 **Total**: 200+ pages of documentation
@@ -509,4 +509,3 @@ reports/silver/
 **Ready for Thesis**: YES (pending validation results)
 
 **You now have everything needed for a strong thesis defense!** 🎓🎉
-
