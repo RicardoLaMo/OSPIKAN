@@ -68,6 +68,14 @@ Core documents:
 - `PAPER_AUTHORING_PROCESS.md`
   - writing workflow for turning benchmark artifacts into a submission-ready paper
   - rules for replacing placeholders and tightening claims
+- `MANUSCRIPT_DRAFT.tex`
+  - LaTeX manuscript skeleton for submission-oriented drafting
+  - mirrors the Markdown draft but is structured for figures, tables, and review
+- `PAPER_BUILD_PROCESS.md`
+  - commands and workflow for building the manuscript locally
+  - artifact policy for draft PDFs and generated paper outputs
+- `FIGURE_TABLE_WORKFLOW.md`
+  - process for creating, naming, and binding figures and tables to benchmark artifacts
 
 Working thesis:
 
@@ -85,3 +93,5 @@ Planning constraints taken from the current repo:
   interfaces and measurable experiments, not to start another broad refactor.
 - The final planning target is one coherent path from abstract -> contracts ->
   benchmarks -> paper package, all under versioned git branches.
+- The manuscript should be authored from benchmark artifacts and contract docs,
+  then rendered in LaTeX only after claims and placeholders are aligned.

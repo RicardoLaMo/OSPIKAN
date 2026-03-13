@@ -1,0 +1,290 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  citecolor=blue
+}
+
+\title{Language as a Protocol Layer for Specialist Financial Models:\\
+LLM-Mediated DSL Routing for Regime-Aware Options and SPIKAN Backends}
+\author{Draft for OSPIKAN Paper Development}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Specialist quantitative models are often difficult to integrate into human-facing
+decision workflows because they require custom interfaces, backend-specific data
+plumbing, and repeated orchestration code. This problem is especially acute in
+finance, where mathematically disciplined models must coexist with ambiguous
+human requests, evolving market narratives, and auditable execution constraints.
+We propose a language-mediated architecture in which a large language model
+serves as a semantic coordination layer between human users and specialist
+financial backends. Rather than allowing unconstrained natural-language control,
+the system compiles user intent into a constrained domain-specific language
+(DSL), which acts as the narrow waist between human reasoning and quantitative
+execution.
+
+We instantiate this architecture in a regime-aware options setting centered on
+silver markets and a specialist backend called SPIKAN, a physics-informed
+Kolmogorov-Arnold network designed for market shock and regime dynamics. The
+repository already contains three major subsystems: a geometric market-state
+pipeline for silver and macro data, an options DSL and KAN knowledge-store
+stack, and a SPIKAN backend with PDE-informed training and outlook generation.
+Our contribution is to reorganize these into a unified architecture with
+explicit state contracts, option-data contracts, backend routing interfaces, and
+reproducible evaluation paths.
+
+The paper is designed to test three claims. First, the LLM can function as a
+protocol compiler rather than a free-form assistant, translating natural
+language into valid executable DSL with measurable reliability. Second, SPIKAN
+can act as a specialist backend whose outputs remain grounded in financially
+meaningful state variables, regime dynamics, and option-related decision tasks.
+Third, a DSL-mediated router can reduce backend-integration complexity relative
+to bespoke, backend-specific glue code. We define a benchmark program spanning
+protocol quality, quantitative performance, calibration, stress-period
+robustness, and integration cost. The resulting framework positions language not
+as a replacement for quantitative modeling, but as an interoperability contract
+between human intent and mathematically disciplined machine intelligence.
+\end{abstract}
+
+\section{Introduction}
+
+Large language models are increasingly used as front ends for analytical and
+decision-support systems. In many deployments, however, the LLM acts as an
+unconstrained conversational wrapper around a collection of tools and models.
+This pattern is flexible, but it is often brittle. The system may work for a
+demo, yet remain difficult to validate, audit, extend, or compare across model
+backends. These problems are amplified in financial applications, where user
+requests are often ambiguous, model outputs must remain economically meaningful,
+and the cost of silent failure is high.
+
+This paper studies an alternative architecture. Instead of treating the LLM as
+the decision engine, we treat it as a protocol layer between human language and
+specialist quantitative models. The key mechanism is a constrained
+domain-specific language that translates natural-language intent into typed,
+executable commands. This design separates semantic coordination from numerical
+inference. The LLM handles human-facing interpretation and query composition,
+while the backend remains responsible for finance-native computation.
+
+We instantiate this idea in a silver-market research platform that already
+contains three substantial subsystems. The first is a multi-asset state
+representation pipeline covering silver, macro, geometry, and regime features.
+The second is an options DSL and KAN knowledge store for pricing, surfaces,
+covariance, transitions, and what-if analysis. The third is SPIKAN, a
+physics-informed Kolmogorov-Arnold network designed to model market shocks and
+regime dynamics. The current repository demonstrates these components
+individually, but the paper contribution is to reconstruct them around explicit
+contracts and measurable evidence.
+
+The business case is regime-aware options analysis. This domain is a useful test
+bed because it forces interaction between ambiguous human questions, structured
+contract parameters, regime-sensitive state variables, and specialist backend
+reasoning. A human may ask for a stress-regime outlook, a repricing scenario, or
+an options surface under changing macro conditions. A free-form LLM is
+insufficient for such tasks because the outputs must remain executable and
+auditable. A purely quantitative backend, on the other hand, is too rigid or
+opaque for natural human interaction without substantial custom interface work.
+The protocol-layer design aims to bridge that gap.
+
+The paper advances three claims. First, the LLM can reliably compile natural
+language into executable DSL under a controlled benchmark. Second, SPIKAN can
+serve as a specialist backend whose outputs are quantitatively meaningful rather
+than decorative. Third, the DSL-router architecture lowers integration cost when
+comparing or onboarding backends. The emphasis is therefore not only predictive
+performance, but also interoperability, auditability, and engineering economy.
+
+\section{Architecture Overview}
+
+The system is organized around six layers: a data plane, a state plane, a
+protocol plane, a backend plane, an evaluation plane, and a product plane. The
+data plane produces silver-centered market and macro features. The state plane
+derives richer geometric and regime-sensitive representations, including Ricci
+curvature, minimum-spanning-tree stress, geometric algebra rotor magnitude, and
+manifold-tension diagnostics. The protocol plane converts natural language into
+a constrained DSL. The backend plane executes requests through pricing, KAN, and
+SPIKAN components. The evaluation plane measures protocol quality, backend
+performance, and integration cost. The product plane exposes outputs through a
+user-facing REPL and report artifacts.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{0.92\linewidth}{
+    \centering
+    Figure Placeholder: Human $\rightarrow$ LLM $\rightarrow$ DSL $\rightarrow$
+    Router $\rightarrow$ Specialist Backend $\rightarrow$ Evidence-Aware Output
+  }}
+  \caption{System architecture showing the DSL as the narrow waist between human
+  language and specialist quantitative backends. Replace with the final
+  architecture figure during evidence binding.}
+  \label{fig:architecture}
+\end{figure}
+
+\section{Canonical Contracts}
+
+Two contracts anchor the design. The first is the market-state contract. The
+current codebase uses state information in several different forms: DataFrame
+columns in regime code, handcrafted dictionaries in the SPIKAN outlook adapter,
+and substring-selected tensors in SPIKAN training. To remove that ambiguity, the
+paper introduces a canonical \texttt{MarketStateSnapshot} with identity, base
+market features, macro features, geometry features, regime features, fluid and
+shock features, optional manifold-tension features, and provenance.
+
+The second is the option-data contract. The options stack has a mature query
+interface, but it lacks a canonical real-data option snapshot. The paper
+therefore defines an \texttt{OptionSnapshot} with contract terms, underlying
+reference fields, quote fields, derived fields such as moneyness and implied
+volatility, and explicit quality flags. The joined benchmark unit is a
+\texttt{StateOptionSnapshot}, formed by aligning option records with canonical
+market state at the same evaluation time.
+
+\begin{table}[H]
+  \centering
+  \caption{Contract summary for the narrow-waist data structures. Replace with
+  the final contract table after implementation artifacts are fixed.}
+  \label{tab:contracts}
+  \begin{tabular}{p{0.22\linewidth} p{0.33\linewidth} p{0.33\linewidth}}
+    \toprule
+    Object & Core Fields & Primary Consumers \\
+    \midrule
+    MarketStateSnapshot & identity, macro, geometry, regime, tension, provenance & regime logic, SPIKAN, router, evaluation \\
+    OptionSnapshot & contract terms, spot, quote, moneyness, implied vol, quality & pricing, KAN store, option benchmark \\
+    BackendResult & query type, backend id, status, payload, provenance & router, formatter, benchmark harness \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Protocol Layer}
+
+The protocol layer is implemented as natural-language-to-DSL compilation with
+validation-backed retries. Prompt rules constrain output to one command, enforce
+capitalization and parameter formats, and provide few-shot examples across the
+supported verb families. A validator checks whether the generated DSL is
+syntactically and semantically executable. The paper reframes this layer as a
+benchmarked protocol compiler rather than a convenience feature.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{0.92\linewidth}{
+    \centering
+    Figure Placeholder: natural-language request, generated DSL, normalized
+    backend request, and structured result
+  }}
+  \caption{Protocol trace from human input to executable DSL and backend result.
+  Replace with a real trace after protocol benchmark artifacts exist.}
+  \label{fig:protocol-trace}
+\end{figure}
+
+\section{Specialist Backends}
+
+The repository contains multiple backend families even before formal
+modularization. A pricing path built around Black-Scholes with regime-conditioned
+volatility from the KAN store supports option pricing, surfaces, and scenario
+analysis. The KAN knowledge store also supports covariance and regime-transition
+queries. SPIKAN consumes asset, macro, geometry, and time inputs to produce
+dynamic signals and trader-facing outlook outputs. Existing regime and
+Markov-style functions form natural baseline backends.
+
+The paper defines a common backend interface over these families so that each
+backend declares capabilities, executes a canonical request, and returns a
+standardized result object with payload, status, provenance, and identity.
+
+\section{Experimental Design}
+
+The evaluation program contains three benchmark families: a protocol benchmark,
+a quantitative benchmark, and an integration-cost study. The protocol benchmark
+tests whether the LLM behaves like a reliable protocol compiler. The
+quantitative benchmark tests whether SPIKAN provides meaningful value relative
+to simpler baselines under equal data and time-split rules. The integration-cost
+study tests whether the DSL-router architecture reduces backend onboarding and
+workflow complexity relative to backend-specific glue.
+
+\begin{table}[H]
+  \centering
+  \caption{Primary quantitative benchmark table placeholder. Replace with the
+  first benchmark leaderboard once shared evaluation harnesses exist.}
+  \label{tab:quant-benchmark}
+  \begin{tabular}{lcccc}
+    \toprule
+    Backend & Task & Primary Metric & Calibration & Stress Slice \\
+    \midrule
+    SPIKAN & shock prediction & [TBD] & [TBD] & [TBD] \\
+    Markov / HMM & shock prediction & [TBD] & [TBD] & [TBD] \\
+    Tabular baseline & shock prediction & [TBD] & [TBD] & [TBD] \\
+    Pricing baseline & option task & [TBD] & [TBD] & [TBD] \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Expected Results Structure}
+
+The final paper should report one table for protocol metrics, one leaderboard
+table for quantitative results, one ablation table, one integration-cost table,
+and a figure set covering architecture, protocol trace, state timeline,
+quantitative comparison, and integration cost.
+
+Current manuscript placeholders to replace during evidence binding:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{[PROTOCOL\_VALID\_DSL\_RATE]}
+  \item \texttt{[PROTOCOL\_SEMANTIC\_MATCH\_RATE]}
+  \item \texttt{[SPIKAN\_PRIMARY\_TASK\_METRIC]}
+  \item \texttt{[SPIKAN\_STRESS\_SLICE\_METRIC]}
+  \item \texttt{[ABLATION\_NO\_GEOMETRY\_DELTA]}
+  \item \texttt{[INTEGRATION\_COST\_ADAPTER\_LOC]}
+  \item \texttt{[INTEGRATION\_COST\_FILES\_TOUCHED]}
+\end{itemize}
+
+\section{Discussion}
+
+The main contribution of this work is architectural. Finance is a useful domain
+because it makes the tradeoffs visible: free-form language is not safe enough,
+but pure quantitative machinery is too rigid for broad interactive use without
+substantial engineering. The DSL contract provides a narrow waist that absorbs
+that tension. It gives the LLM a disciplined role and gives specialist models a
+stable entry point into human-facing workflows.
+
+The main limitation is that the strongest full-system claim still depends on
+real-data option integration and benchmark completion. Until those are finished,
+the paper should be described as a structured draft and evidence program rather
+than a completed empirical result.
+
+\section{Conclusion}
+
+We have outlined a paper architecture in which language functions as a protocol
+layer between humans and specialist financial models. In the proposed system,
+the LLM does not replace quantitative reasoning. Instead, it compiles natural
+language into a constrained DSL that can be routed through auditable, swappable,
+finance-native backends. SPIKAN serves as the flagship specialist backend, while
+the surrounding contracts and benchmarks make the broader architecture testable.
+
+\appendix
+
+\section{Minimal Figure Checklist}
+
+The draft expects the following final figures:
+\begin{enumerate}[leftmargin=*]
+  \item architecture figure,
+  \item state/regime/tension timeline,
+  \item protocol trace figure,
+  \item quantitative comparison figure,
+  \item integration-cost figure.
+\end{enumerate}
+
+\end{document}
