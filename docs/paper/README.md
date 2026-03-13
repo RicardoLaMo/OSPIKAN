@@ -44,6 +44,12 @@ Core documents:
 - `PROTOCOL_BENCHMARK_MIGRATION.md`
   - migration from prompt/unit-test coverage to reproducible protocol benchmarks
   - implementation path for benchmark harnesses and artifacts
+- `QUANT_BENCHMARK_SPEC.md`
+  - real-data quantitative proof design for SPIKAN and comparison models
+  - tasks, metrics, time splits, ablations, and decision rules
+- `SPIKAN_BASELINE_MIGRATION.md`
+  - migration from standalone SPIKAN training to benchmark-parity evaluation
+  - baseline set, fairness rules, and paper-ready outputs
 
 Working thesis:
 
