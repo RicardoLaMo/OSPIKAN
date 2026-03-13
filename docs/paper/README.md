@@ -20,6 +20,12 @@ Core documents:
 - `EVIDENCE_MATRIX.md`
   - exact claim-to-evidence mapping
   - required tables, figures, baselines, and failure criteria
+- `STATE_CONTRACT_SPEC.md`
+  - canonical market-state schema derived from the current repo
+  - projection rules into SPIKAN, regime logic, and DSL execution
+- `STATE_CONTRACT_MIGRATION.md`
+  - how to move from current heuristics to the canonical state contract
+  - affected modules and migration gates
 
 Working thesis:
 
