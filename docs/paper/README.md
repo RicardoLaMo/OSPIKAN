@@ -26,6 +26,12 @@ Core documents:
 - `STATE_CONTRACT_MIGRATION.md`
   - how to move from current heuristics to the canonical state contract
   - affected modules and migration gates
+- `OPTION_DATA_CONTRACT_SPEC.md`
+  - canonical option snapshot schema for real-data benchmarking
+  - contract between DSL pricing tasks, KAN store inputs, and evaluation
+- `OPTION_DATA_MIGRATION.md`
+  - move from synthetic-only option training assumptions to real-data option snapshots
+  - benchmark join design with the market-state contract
 
 Working thesis:
 
