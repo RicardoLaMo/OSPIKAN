@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import random
 import sys
 from pathlib import Path
 from typing import Any
@@ -145,6 +146,12 @@ def _stress_rows(backend: str, severe_true: np.ndarray, severe_prob: np.ndarray)
 
 
 def run_benchmark(args: argparse.Namespace) -> Path:
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed)
+
     module = _load_train_spikan_module()
 
     features_path = Path(args.features) if args.features else None
@@ -284,7 +291,7 @@ def run_benchmark(args: argparse.Namespace) -> Path:
         REPO_ROOT,
         benchmark_id=benchmark_id,
         split_id=f"{args.train_end}|{args.val_start}:{args.val_end}|{args.test_start}",
-        seed_policy="fixed:42",
+        seed_policy=f"fixed:{args.seed}",
         backend_ids=backend_ids,
         source_data_refs=source_data_refs,
         owner_doc="docs/paper/QUANT_BENCHMARK_SPEC.md",
@@ -292,6 +299,7 @@ def run_benchmark(args: argparse.Namespace) -> Path:
             "epochs": args.epochs,
             "batch_size": args.batch_size,
             "include_ablation": bool(args.include_ablation),
+            "seed": int(args.seed),
             "n_train": int(len(split_train["X"])),
             "n_val": int(len(split_val["X"])),
             "n_test": int(len(split_test["X"])),
@@ -323,6 +331,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--patience", type=int, default=5)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--casebook-size", type=int, default=25)
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--cpu", action="store_true", help="Force CPU execution.")
     parser.add_argument("--no-compile", action="store_true", help="Disable torch.compile in SPIKAN training.")
     parser.add_argument("--skip-spikan", action="store_true", help="Only run tabular baselines.")
