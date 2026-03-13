@@ -46,6 +46,24 @@ The codebase is organized more like a research platform than a library package. 
 - `docs/`
   - Long-form runbooks, manuals, design notes, and archived implementation records.
 
+### Documentation layout rules
+
+- `docs/guides/`
+  - Quick starts, operator cheat sheets, and usage-oriented walkthroughs.
+- `docs/project_status/`
+  - Milestone summaries, phase status, and implementation snapshots.
+- `docs/thesis/`
+  - Thesis-facing result summaries and deliverable packaging.
+- `docs/archive/`
+  - Historical notes kept for traceability rather than day-to-day navigation.
+
+Keep only core project-entry files at the repo root:
+
+- `README.md`
+- `AGENTS.md`
+- `requirements.txt`
+- environment/bootstrap helpers such as `usercustomize.py`
+
 ## Generated Artifacts
 
 These directories are primarily outputs, not architecture sources:

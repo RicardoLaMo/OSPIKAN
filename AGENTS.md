@@ -29,6 +29,8 @@ These systems are related rather than separate: the options tooling depends on m
   - Best operational overview for the silver pipeline.
 - `docs/INDEX.md`
   - Best doc hub for the options DSL / REPL / agent workflow.
+- `docs/guides/`, `docs/project_status/`, `docs/thesis/`
+  - Human-oriented summaries, milestone snapshots, and thesis materials that were moved out of the repo root.
 - `configs/`
   - Fastest way to understand the active universes, regime settings, and options runtime assumptions.
 

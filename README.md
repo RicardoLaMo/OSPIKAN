@@ -27,6 +27,9 @@ OSPIKAN is a research and engineering repository for market modeling with geomet
 - `src/validation/`: data-quality and out-of-sample evaluation helpers
 - `scripts/`: one-shot runners, demos, reports, training, REPL, and QA tooling
 - `tests/`: unit and integration coverage
+- `docs/guides/`: quick starts and operator-facing how-to material
+- `docs/project_status/`: implementation snapshots and milestone summaries
+- `docs/thesis/`: thesis-facing results and deliverable summaries
 
 ## Start Here
 
@@ -34,6 +37,7 @@ OSPIKAN is a research and engineering repository for market modeling with geomet
 - Options DSL docs: `docs/INDEX.md`
 - Repo structure map: `docs/REPO_ARCHITECTURE.md`
 - Workflow and Git conventions: `docs/WORKFLOW.md`
+- Silver quick reference: `docs/guides/SILVER_QUICK_REFERENCE.md`
 
 ## Common Commands
 
