@@ -38,6 +38,12 @@ Core documents:
 - `ROUTER_MIGRATION.md`
   - migration from the current `ExecutionContext` + hardcoded executor path
   - target backend registry, routing rules, and compatibility gates
+- `PROTOCOL_BENCHMARK_SPEC.md`
+  - evaluation design for NL-to-DSL as a protocol compiler
+  - metrics, corpus design, failure modes, and acceptance gates
+- `PROTOCOL_BENCHMARK_MIGRATION.md`
+  - migration from prompt/unit-test coverage to reproducible protocol benchmarks
+  - implementation path for benchmark harnesses and artifacts
 
 Working thesis:
 
